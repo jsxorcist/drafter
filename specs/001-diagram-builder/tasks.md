@@ -115,17 +115,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Implement updateEntityPosition action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T039 [US3] Implement updateEntityLabel action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T040 [US3] Implement deleteEntity action with connection cleanup in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T041 [US3] Enable drag-and-drop for entities in React-Flow in src/widgets/canvas/Canvas.tsx
-- [ ] T042 [US3] Create inline text editor component for entity labels in src/widgets/canvas/EntityNode.tsx
-- [ ] T043 [US3] Implement double-click to edit entity label in src/widgets/canvas/EntityNode.tsx
-- [ ] T044 [US3] Add keyboard handler for Delete key in src/widgets/canvas/Canvas.tsx
-- [ ] T045 [US3] Create Command pattern for Undo/Redo in src/shared/lib/command.ts
-- [ ] T046 [US3] Implement undo/redo actions in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T047 [US3] Add Undo/Redo keyboard shortcuts (Ctrl+Z, Ctrl+Y) in src/widgets/canvas/Canvas.tsx
-- [ ] T048 [US3] Add visual feedback for all edit operations (optimistic UI) in src/widgets/canvas/Canvas.tsx
+- [x] T038 [US3] Implement updateEntityPosition action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T039 [US3] Implement updateEntityLabel action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T040 [US3] Implement deleteEntity action with connection cleanup in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T041 [US3] Enable drag-and-drop for entities in React-Flow in src/widgets/canvas/Canvas.tsx
+- [x] T042 [US3] Create inline text editor component for entity labels in src/widgets/canvas/EntityNode.tsx
+- [x] T043 [US3] Implement double-click to edit entity label in src/widgets/canvas/EntityNode.tsx
+- [x] T044 [US3] Add keyboard handler for Delete key in src/widgets/canvas/Canvas.tsx
+- [x] T045 [US3] Create Command pattern for Undo/Redo in src/shared/lib/command.ts
+- [x] T046 [US3] Implement undo/redo actions in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T047 [US3] Add Undo/Redo keyboard shortcuts (Ctrl+Z, Ctrl+Y) in src/widgets/canvas/Canvas.tsx
+- [x] T048 [US3] Add visual feedback for all edit operations (optimistic UI) in src/widgets/canvas/Canvas.tsx
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
 
@@ -139,17 +139,17 @@
 
 ### Implementation for User Story 4
 
-- [ ] T049 [P] [US4] Create TextNote factory function in src/entities/diagram/factory.ts
-- [ ] T050 [US4] Implement createTextNote action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T051 [US4] Implement updateTextNote action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T052 [US4] Implement deleteTextNote action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T053 [US4] Create custom React-Flow node for text notes in src/widgets/canvas/TextNoteNode.tsx
-- [ ] T054 [US4] Add text note creation button in SidePanel in src/widgets/side-panel/SidePanel.tsx
-- [ ] T055 [US4] Implement click handler to create text note on canvas in src/widgets/canvas/Canvas.tsx
-- [ ] T056 [US4] Create inline editor for text notes in src/widgets/canvas/TextNoteNode.tsx
-- [ ] T057 [US4] Enable drag-and-drop for text notes in src/widgets/canvas/Canvas.tsx
-- [ ] T058 [US4] Transform text notes to React-Flow nodes in src/widgets/canvas/nodeTransform.ts
-- [ ] T059 [US4] Add visual feedback for text note operations in src/widgets/canvas/Canvas.tsx
+- [x] T049 [P] [US4] Create TextNote factory function in src/entities/diagram/factory.ts
+- [x] T050 [US4] Implement createTextNote action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T051 [US4] Implement updateTextNote action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T052 [US4] Implement deleteTextNote action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T053 [US4] Create custom React-Flow node for text notes in src/widgets/canvas/TextNoteNode.tsx
+- [x] T054 [US4] Add text note creation button in SidePanel in src/widgets/side-panel/SidePanel.tsx
+- [x] T055 [US4] Implement click handler to create text note on canvas in src/widgets/canvas/Canvas.tsx
+- [x] T056 [US4] Create inline editor for text notes in src/widgets/canvas/TextNoteNode.tsx
+- [x] T057 [US4] Enable drag-and-drop for text notes in src/widgets/canvas/Canvas.tsx
+- [x] T058 [US4] Transform text notes to React-Flow nodes in src/widgets/canvas/nodeTransform.ts
+- [x] T059 [US4] Add visual feedback for text note operations in src/widgets/canvas/Canvas.tsx
 
 **Checkpoint**: At this point, User Stories 1-4 should all work independently
 
@@ -163,17 +163,17 @@
 
 ### Implementation for User Story 5
 
-- [ ] T060 [P] [US5] Create Drawing factory function and Stroke types in src/entities/diagram/factory.ts
-- [ ] T061 [US5] Implement addDrawingStroke action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T062 [US5] Implement deleteDrawing action in diagram reducer in src/app/providers/diagramReducer.ts
-- [ ] T063 [US5] Create DrawingMode feature component in src/features/drawing-mode/DrawingMode.tsx
-- [ ] T064 [US5] Create Canvas layer for drawing overlay in src/features/drawing-mode/DrawingCanvas.tsx
-- [ ] T065 [US5] Implement mouse event handlers for drawing in src/features/drawing-mode/DrawingCanvas.tsx
-- [ ] T066 [US5] Add drawing mode toggle button in SidePanel in src/widgets/side-panel/SidePanel.tsx
-- [ ] T067 [US5] Integrate drawing canvas layer with React-Flow Canvas in src/widgets/canvas/Canvas.tsx
-- [ ] T068 [US5] Implement stroke rendering on canvas in src/features/drawing-mode/DrawingCanvas.tsx
-- [ ] T069 [US5] Add drawing selection and deletion UI in src/features/drawing-mode/DrawingCanvas.tsx
-- [ ] T070 [US5] Save drawing strokes to diagram state in src/features/drawing-mode/DrawingCanvas.tsx
+- [x] T060 [P] [US5] Create Drawing factory function and Stroke types in src/entities/diagram/factory.ts
+- [x] T061 [US5] Implement addDrawingStroke action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T062 [US5] Implement deleteDrawing action in diagram reducer in src/app/providers/diagramReducer.ts
+- [x] T063 [US5] Create DrawingMode feature component in src/features/drawing-mode/DrawingMode.tsx
+- [x] T064 [US5] Create Canvas layer for drawing overlay in src/features/drawing-mode/DrawingCanvas.tsx
+- [x] T065 [US5] Implement mouse event handlers for drawing in src/features/drawing-mode/DrawingCanvas.tsx
+- [x] T066 [US5] Add drawing mode toggle button in SidePanel in src/widgets/side-panel/SidePanel.tsx
+- [x] T067 [US5] Integrate drawing canvas layer with React-Flow Canvas in src/widgets/canvas/Canvas.tsx
+- [x] T068 [US5] Implement stroke rendering on canvas in src/features/drawing-mode/DrawingCanvas.tsx
+- [x] T069 [US5] Add drawing selection and deletion UI in src/features/drawing-mode/DrawingCanvas.tsx
+- [x] T070 [US5] Save drawing strokes to diagram state in src/features/drawing-mode/DrawingCanvas.tsx
 
 **Checkpoint**: At this point, User Stories 1-5 should all work independently
 
@@ -187,19 +187,19 @@
 
 ### Implementation for User Story 6
 
-- [ ] T071 [P] [US6] Create serializeDiagram function for JSON export in src/entities/diagram/serialization.ts
-- [ ] T072 [P] [US6] Create deserializeDiagram function with validation in src/entities/diagram/serialization.ts
-- [ ] T073 [US6] Implement saveDiagram to LocalStorage in src/features/save-load/saveDiagram.ts
-- [ ] T074 [US6] Implement loadDiagram from LocalStorage in src/features/save-load/loadDiagram.ts
-- [ ] T075 [US6] Create auto-save functionality with debounce in src/features/save-load/autoSave.ts
-- [ ] T076 [US6] Add save button in UI in src/widgets/toolbar/Toolbar.tsx
-- [ ] T077 [US6] Implement export diagram to JSON file in src/features/save-load/exportDiagram.ts
-- [ ] T078 [US6] Implement import diagram from JSON file in src/features/save-load/importDiagram.ts
-- [ ] T079 [US6] Add import/export buttons in Toolbar in src/widgets/toolbar/Toolbar.tsx
-- [ ] T080 [US6] Create restore diagram prompt on app load in src/app/App.tsx
-- [ ] T081 [US6] Add error handling for LocalStorage operations in src/features/save-load/saveDiagram.ts
-- [ ] T082 [US6] Add error handling for import validation in src/features/save-load/importDiagram.ts
-- [ ] T083 [US6] Implement diagram versioning for compatibility in src/entities/diagram/serialization.ts
+- [x] T071 [P] [US6] Create serializeDiagram function for JSON export in src/entities/diagram/serialization.ts
+- [x] T072 [P] [US6] Create deserializeDiagram function with validation in src/entities/diagram/serialization.ts
+- [x] T073 [US6] Implement saveDiagram to LocalStorage in src/features/save-load/saveDiagram.ts
+- [x] T074 [US6] Implement loadDiagram from LocalStorage in src/features/save-load/loadDiagram.ts
+- [x] T075 [US6] Create auto-save functionality with debounce in src/features/save-load/autoSave.ts
+- [x] T076 [US6] Add save button in UI in src/widgets/toolbar/Toolbar.tsx
+- [x] T077 [US6] Implement export diagram to JSON file in src/features/save-load/exportDiagram.ts
+- [x] T078 [US6] Implement import diagram from JSON file in src/features/save-load/importDiagram.ts
+- [x] T079 [US6] Add import/export buttons in Toolbar in src/widgets/toolbar/Toolbar.tsx
+- [x] T080 [US6] Create restore diagram prompt on app load in src/app/App.tsx
+- [x] T081 [US6] Add error handling for LocalStorage operations in src/features/save-load/saveDiagram.ts
+- [x] T082 [US6] Add error handling for import validation in src/features/save-load/importDiagram.ts
+- [x] T083 [US6] Implement diagram versioning for compatibility in src/entities/diagram/serialization.ts
 
 **Checkpoint**: At this point, all user stories should be fully functional
 

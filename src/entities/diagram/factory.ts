@@ -1,4 +1,4 @@
-import { Diagram, DiagramMetadata, Entity, EntityType, Position, Connection } from "./types";
+import { Diagram, DiagramMetadata, Entity, EntityType, Position, Connection, TextNote, Drawing, Stroke, Point } from "./types";
 import { generateId } from "@/shared/lib/id-generator";
 import { DEFAULT_ENTITY_COLORS, DEFAULT_ENTITY_SHAPES } from "./constants";
 
@@ -54,6 +54,46 @@ export function createConnection(
       strokeWidth: 2,
       arrowType: "default",
     },
+  };
+}
+
+export function createTextNote(
+  position: Position,
+  text: string = "Новая заметка"
+): TextNote {
+  return {
+    id: generateId(),
+    position,
+    text,
+    style: {
+      fontSize: 14,
+      color: "var(--color-text-primary)",
+      backgroundColor: "var(--color-background)",
+      borderRadius: 8,
+    },
+  };
+}
+
+export function createDrawing(): Drawing {
+  return {
+    id: generateId(),
+    strokes: [],
+    style: {
+      color: "#000000",
+      strokeWidth: 2,
+    },
+  };
+}
+
+export function createStroke(
+  points: Point[],
+  color: string = "#000000",
+  strokeWidth: number = 2
+): Stroke {
+  return {
+    points,
+    color,
+    strokeWidth,
   };
 }
 

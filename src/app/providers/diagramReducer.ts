@@ -1,4 +1,4 @@
-import { Diagram, Entity, Connection, TextNote, Drawing, Stroke } from "@/entities/diagram/types";
+import { Diagram, Entity, Connection, TextNote, Stroke } from "@/entities/diagram/types";
 import { generateId } from "@/shared/lib/id-generator";
 
 export type DiagramAction =
@@ -11,10 +11,13 @@ export type DiagramAction =
   | { type: "CREATE_TEXT_NOTE"; note: TextNote }
   | { type: "DELETE_TEXT_NOTE"; noteId: string }
   | { type: "UPDATE_TEXT_NOTE"; noteId: string; text: string }
+  | { type: "UPDATE_TEXT_NOTE_POSITION"; noteId: string; position: { x: number; y: number } }
   | { type: "ADD_DRAWING_STROKE"; drawingId: string; stroke: Stroke }
   | { type: "DELETE_DRAWING"; drawingId: string }
   | { type: "LOAD_DIAGRAM"; diagram: Diagram }
-  | { type: "RESET_DIAGRAM" };
+  | { type: "RESET_DIAGRAM" }
+  | { type: "UNDO" }
+  | { type: "REDO" };
 
 export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
   const now = new Date().toISOString();
@@ -101,16 +104,52 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
       };
     }
 
-    case "ADD_DRAWING_STROKE": {
+    case "UPDATE_TEXT_NOTE_POSITION": {
       return {
         ...state,
-        drawings: state.drawings.map((d) =>
-          d.id === action.drawingId
-            ? { ...d, strokes: [...d.strokes, action.stroke] }
-            : d
+        textNotes: state.textNotes.map((n) =>
+          n.id === action.noteId ? { ...n, position: action.position } : n
         ),
         metadata: { ...state.metadata, updatedAt: now },
       };
+    }
+
+    case "ADD_DRAWING_STROKE": {
+      // Check if drawing exists
+      const drawingExists = state.drawings.some((d) => d.id === action.drawingId);
+      
+      if (!drawingExists && action.stroke.points.length > 0) {
+        // Create new drawing if it doesn't exist and stroke has points
+        const newDrawing = {
+          id: action.drawingId,
+          strokes: [action.stroke],
+          style: {
+            color: action.stroke.color || "#000000",
+            strokeWidth: action.stroke.strokeWidth || 2,
+          },
+        };
+        return {
+          ...state,
+          drawings: [...state.drawings, newDrawing],
+          metadata: { ...state.metadata, updatedAt: now },
+        };
+      }
+
+      // Add stroke to existing drawing (only if stroke has points)
+      if (action.stroke.points.length > 0) {
+        return {
+          ...state,
+          drawings: state.drawings.map((d) =>
+            d.id === action.drawingId
+              ? { ...d, strokes: [...d.strokes, action.stroke] }
+              : d
+          ),
+          metadata: { ...state.metadata, updatedAt: now },
+        };
+      }
+
+      // If stroke is empty, don't update
+      return state;
     }
 
     case "DELETE_DRAWING": {
@@ -138,6 +177,12 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
           updatedAt: now,
         },
       };
+    }
+
+    case "UNDO":
+    case "REDO": {
+      // These are handled by the provider, should not reach here
+      return state;
     }
 
     default: {

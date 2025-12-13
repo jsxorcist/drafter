@@ -1,14 +1,21 @@
-import { useState } from "react";
-import { EntityType } from "@/entities/diagram/types";
 import { ENTITY_TYPES } from "@/entities/diagram/constants";
 import { EntityTypeButton } from "./EntityTypeButton";
+import { TextNoteButton } from "./TextNoteButton";
+import { DrawingModeButton } from "./DrawingModeButton";
 
 interface SidePanelProps {
-  selectedEntityType: EntityType | null;
-  onEntityTypeSelect: (type: EntityType) => void;
+  isDrawingMode?: boolean;
+  onDrawingModeToggle?: () => void;
+  onDeleteAllDrawings?: () => void;
+  drawingsCount?: number;
 }
 
-export function SidePanel({ selectedEntityType, onEntityTypeSelect }: SidePanelProps) {
+export function SidePanel({
+  isDrawingMode = false,
+  onDrawingModeToggle,
+  onDeleteAllDrawings,
+  drawingsCount = 0,
+}: SidePanelProps) {
   return (
     <div
       style={{
@@ -36,27 +43,76 @@ export function SidePanel({ selectedEntityType, onEntityTypeSelect }: SidePanelP
           <EntityTypeButton
             key={type}
             type={type}
-            isSelected={selectedEntityType === type}
-            onClick={() => onEntityTypeSelect(type)}
+            isSelected={false}
+            onClick={() => {}}
           />
         ))}
       </div>
-      {selectedEntityType && (
-        <div
+      <div
+        style={{
+          marginTop: "var(--spacing-lg)",
+          padding: "var(--spacing-md)",
+          backgroundColor: "var(--color-background)",
+          borderRadius: "var(--radius-md)",
+          border: "1px solid var(--color-border)",
+        }}
+      >
+        <h3
           style={{
-            marginTop: "var(--spacing-lg)",
-            padding: "var(--spacing-md)",
-            backgroundColor: "var(--color-background)",
-            borderRadius: "var(--radius-md)",
-            fontSize: "var(--font-size-sm)",
-            color: "var(--color-text-secondary)",
+            fontSize: "var(--font-size-base)",
+            fontWeight: "var(--font-weight-semibold)",
+            marginBottom: "var(--spacing-sm)",
+            color: "var(--color-text-primary)",
           }}
         >
-          Выбран тип: <strong>{ENTITY_TYPES.find((t) => t === selectedEntityType) || ""}</strong>
-          <br />
-          Кликните на рабочее поле, чтобы разместить сущность
-        </div>
-      )}
+          Дополнительно
+        </h3>
+        <TextNoteButton />
+        {onDrawingModeToggle && (
+          <>
+            <DrawingModeButton isActive={isDrawingMode} onToggle={onDrawingModeToggle} />
+            {isDrawingMode && drawingsCount > 0 && onDeleteAllDrawings && (
+              <button
+                type="button"
+                onClick={onDeleteAllDrawings}
+                style={{
+                  padding: "var(--spacing-sm)",
+                  marginTop: "var(--spacing-sm)",
+                  backgroundColor: "var(--color-error)",
+                  color: "var(--color-text-inverse)",
+                  border: "2px solid var(--color-error)",
+                  borderRadius: "var(--radius-md)",
+                  cursor: "pointer",
+                  fontSize: "var(--font-size-sm)",
+                  fontWeight: "var(--font-weight-medium)",
+                  transition: "var(--transition-base)",
+                  width: "100%",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--color-error-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--color-error)";
+                }}
+              >
+                Удалить все рисунки ({drawingsCount})
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      <div
+        style={{
+          marginTop: "var(--spacing-lg)",
+          padding: "var(--spacing-md)",
+          backgroundColor: "var(--color-background)",
+          borderRadius: "var(--radius-md)",
+          fontSize: "var(--font-size-sm)",
+          color: "var(--color-text-secondary)",
+        }}
+      >
+        Перетащите элемент на рабочее поле
+      </div>
     </div>
   );
 }
