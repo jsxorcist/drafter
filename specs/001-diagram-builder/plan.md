@@ -1,13 +1,13 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Визуальный конструктор схем
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `001-diagram-builder` | **Date**: 2025-01-27 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/specs/001-diagram-builder/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Веб-инструмент для быстрого построения визуальных схем во время живых обсуждений. Одностраничное React-приложение с использованием React-Flow для визуализации графов. Состояние полностью хранится на клиенте, сохранение через локальное хранилище браузера с экспортом/импортом JSON. Интерфейс включает рабочее поле, боковую панель и поддержку темной темы.
 
 ## Technical Context
 
@@ -17,15 +17,15 @@
   the iteration process.
 -->
 
-**Language/Version**: TypeScript (strict mode, no any)  
-**Primary Dependencies**: React, React-Flow, [other dependencies as needed]  
-**Storage**: LocalStorage/IndexedDB (опциональное локальное сохранение)  
+**Language/Version**: TypeScript 5.x (strict mode, no any)  
+**Primary Dependencies**: React 18+, React-Flow (для работы с графами), Vite (сборщик)  
+**Storage**: LocalStorage для сохранения схем, JSON для экспорта/импорта  
 **Testing**: Нет автоматизированных тестов (согласно конституции)  
-**Target Platform**: Браузер (полностью клиентское приложение)  
-**Project Type**: web (frontend-only)  
-**Performance Goals**: Мгновенная визуальная обратная связь, минимум трения в интерфейсе  
-**Constraints**: Без серверной части, без аутентификации, минимальные зависимости  
-**Scale/Scope**: Ситуативное использование "здесь и сейчас", не для долгосрочного хранения
+**Target Platform**: Браузер (полностью клиентское приложение, SPA)  
+**Project Type**: web (frontend-only, одностраничное приложение)  
+**Performance Goals**: Визуальная обратная связь в пределах 100ms, плавное взаимодействие с 50+ сущностями  
+**Constraints**: Без серверной части, без аутентификации, минимальные зависимости, только браузерное хранилище  
+**Scale/Scope**: Ситуативное использование "здесь и сейчас", поддержка до 50 сущностей и 40 соединений без деградации производительности
 
 ## Constitution Check
 
@@ -80,14 +80,45 @@ src/
     └── styles/             # CSS-переменные для дизайн-токенов
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Feature-Sliced Design структура выбрана согласно конституции проекта. Приложение одностраничное, поэтому основная логика будет в `pages/diagram-page`, компоненты рабочего поля в `widgets/canvas`, функциональность создания/редактирования сущностей в `features/entity-management`, модели данных в `entities/diagram`, а базовые UI компоненты и дизайн-токены в `shared`.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+Нет нарушений конституции. Все решения соответствуют принципам проекта.
+
+---
+
+## Phase 0: Research Complete ✅
+
+**Output**: [research.md](./research.md)
+
+**Key Decisions**:
+- React-Flow для работы с графами
+- Context API + useReducer для управления состоянием
+- HTML5 Canvas API для рисования
+- CSS-переменные для темной темы
+- JSON для сериализации
+- LocalStorage для сохранения
+
+---
+
+## Phase 1: Design Complete ✅
+
+**Outputs**:
+- [data-model.md](./data-model.md) - Модель данных с TypeScript интерфейсами
+- [contracts/data-operations.md](./contracts/data-operations.md) - Контракты операций с данными
+- [quickstart.md](./quickstart.md) - Руководство по быстрому старту
+
+**Key Artifacts**:
+- Полная модель данных с валидацией
+- Контракты для всех операций с диаграммой
+- TypeScript интерфейсы для типобезопасности
+- Руководство по настройке проекта
+
+---
+
+## Phase 2: Ready for Task Breakdown
+
+План готов для создания задач через `/speckit.tasks`.

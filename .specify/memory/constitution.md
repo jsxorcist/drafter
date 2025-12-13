@@ -1,50 +1,112 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version: 0.0.0 → 1.0.0 (MAJOR: Initial constitution creation)
+Modified principles: N/A (initial creation)
+Added sections:
+  - Core Principles (8 principles)
+  - Technology Stack
+  - Development Workflow
+  - Governance
+Templates requiring updates:
+  ✅ .specify/templates/plan-template.md (Constitution Check section updated, FSD structure added)
+  ✅ .specify/templates/tasks-template.md (removed test tasks, aligned with no-test principle, FSD paths)
+  ✅ .specify/templates/spec-template.md (updated terminology: Testing → Verification, manual testing emphasis)
+Follow-up TODOs: None
+-->
+
+# Drafter Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. TypeScript без any
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Кодовая база использует строгий TypeScript без типа `any`. Все типы должны быть явно определены или выведены компилятором. Использование `any` запрещено; при необходимости использовать `unknown` с проверками типов. Это обеспечивает типобезопасность и предотвращает ошибки во время выполнения.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. ESLint + Prettier
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Проект использует ESLint для статического анализа кода и Prettier для форматирования. Конфигурации должны быть согласованы и применяться автоматически. Код должен проходить проверки линтера без ошибок перед коммитом.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Feature-Sliced Design
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Архитектура проекта следует методологии Feature-Sliced Design. Структура кода организована по слоям (app, pages, widgets, features, entities, shared) и слайсам (feature modules). Это обеспечивает масштабируемость, изоляцию функциональности и предсказуемую организацию кода.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Без тестов
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Проект не использует автоматизированные тесты. Фокус на быстрой разработке и итерации. Качество кода обеспечивается через строгую типизацию, линтинг и ручное тестирование.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Единые дизайн-токены
+
+Все визуальные параметры определяются через CSS-переменные (custom properties): цвета, типографика (размеры шрифтов, межстрочные интервалы, веса), радиусы скругления, тени. Токены должны быть централизованы и использоваться консистентно по всему приложению. Это обеспечивает единообразие интерфейса и упрощает поддержку дизайн-системы.
+
+### VI. Inline-валидация форм
+
+Валидация форм происходит в реальном времени (inline) при вводе данных пользователем. Ошибки отображаются немедленно рядом с соответствующими полями. Это минимизирует трение и обеспечивает мгновенную обратную связь.
+
+### VII. Optimistic UI с откатом
+
+Пользовательские действия применяются оптимистично: интерфейс обновляется немедленно, до подтверждения успешного выполнения операции. В случае ошибки выполняется откат к предыдущему состоянию с уведомлением пользователя. Это создает ощущение мгновенного отклика и снижает воспринимаемую задержку.
+
+### VIII. Понятные состояния загрузки и ошибок
+
+Все асинхронные операции должны иметь явные состояния загрузки (loading states) и обработку ошибок. Состояния должны быть визуально различимы и понятны пользователю. Ошибки должны содержать понятные сообщения и возможности для восстановления.
+
+## Technology Stack
+
+**Frontend Framework**: React с TypeScript  
+**Flow Editor**: React-Flow для визуализации схем и диаграмм  
+**State Management**: Явное управление состоянием (React hooks, Context API или легковесное решение)  
+**Styling**: CSS с использованием CSS-переменных для дизайн-токенов  
+**Build Tool**: Vite или аналогичный быстрый инструмент сборки  
+**Code Quality**: ESLint + Prettier  
+**Storage**: LocalStorage/IndexedDB для опционального локального сохранения данных
+
+**Ограничения**:
+- Приложение работает полностью в браузере без серверной части
+- Без аутентификации и внешних API
+- Минимальные зависимости - библиотеки подключаются только для решения конкретных задач
+- Зависимости должны быть обоснованы необходимостью
+
+## Development Workflow
+
+**Приоритеты разработки**:
+1. Скорость взаимодействия и ясность выше визуального лоска
+2. Минимум кликов для выполнения действий
+3. Мгновенная визуальная обратная связь
+4. Интуитивный drag-and-drop
+
+**Управление состоянием**:
+- Явное и предсказуемое управление состоянием
+- Избегать излишних абстракций
+- Простота кодовой базы важнее переиспользования
+
+**Интерфейс**:
+- Минимизация трения в пользовательском взаимодействии
+- Оптимизация для быстрого, ситуативного использования
+- Фокус на "здесь и сейчас", а не долгосрочное хранение
+
+**Сохранение данных**:
+- Опциональное локальное сохранение
+- Потеря данных нежелательна, но допустима на ранних этапах
+- Данные хранятся локально в браузере
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Конституция проекта определяет обязательные правила разработки и имеет приоритет над другими практиками и соглашениями.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Версионирование конституции**: Семантическое версионирование (MAJOR.MINOR.PATCH):
+- MAJOR: Несовместимые изменения принципов или удаление принципов
+- MINOR: Добавление новых принципов или существенное расширение руководства
+- PATCH: Уточнения формулировок, исправления опечаток, незначительные улучшения
+
+**Процедура внесения изменений**:
+1. Изменения должны быть задокументированы
+2. Обновлены все зависимые шаблоны и документы
+3. Создан отчет о синхронизации (Sync Impact Report)
+4. Версия конституции должна быть обновлена согласно правилам версионирования
+
+**Соответствие конституции**:
+- Все изменения кода должны соответствовать принципам конституции
+- Сложность должна быть обоснована
+- Отклонения от принципов требуют явного обоснования в документации
+
+**Version**: 1.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-01-27
