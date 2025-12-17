@@ -35,4 +35,3 @@ export function clearSavedDiagram(): void {
     throw new Error("Failed to clear saved diagram: unknown error");
   }
 }
-

@@ -65,4 +65,3 @@ export function TextNoteButton({ onClick }: TextNoteButtonProps) {
     </button>
   );
 }
-

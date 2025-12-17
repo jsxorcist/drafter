@@ -37,4 +37,3 @@ export function transformConnectionToEdge(connection: Connection): Edge {
 export function transformConnectionsToEdges(connections: Connection[]): Edge[] {
   return connections.map(transformConnectionToEdge);
 }
-

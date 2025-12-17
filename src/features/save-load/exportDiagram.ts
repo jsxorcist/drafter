@@ -11,7 +11,8 @@ export function exportDiagramToFile(diagram: Diagram, filename?: string): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = filename || `diagram-${diagram.id}-${new Date().toISOString().split("T")[0]}.json`;
+    link.download =
+      filename || `diagram-${diagram.id}-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -23,4 +24,3 @@ export function exportDiagramToFile(diagram: Diagram, filename?: string): void {
     throw new Error("Failed to export diagram: unknown error");
   }
 }
-

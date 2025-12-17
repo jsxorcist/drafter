@@ -81,4 +81,3 @@ export class HistoryManager {
     this.currentIndex = 0;
   }
 }
-

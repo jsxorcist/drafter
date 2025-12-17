@@ -3,7 +3,7 @@ import { Diagram } from "@/entities/diagram/types";
 import { diagramReducer, DiagramAction } from "./diagramReducer";
 import { createEmptyDiagram } from "@/entities/diagram/factory";
 import { HistoryManager } from "@/shared/lib/command";
-import { autoSaveDiagram } from "@/features/save-load/autoSave";
+import { autoSave } from "@/features/save-load/autoSave";
 
 interface DiagramContextType {
   diagram: Diagram;
@@ -33,24 +33,24 @@ export function DiagramProvider({ children }: DiagramProviderProps) {
   // Position updates are debounced to avoid cluttering history
   const lastHistoryPushRef = useRef<number>(0);
   const lastActionTypeRef = useRef<string | null>(null);
-  
+
   useEffect(() => {
     if (!isUndoRedoRef.current) {
       const now = Date.now();
       const timeSinceLastPush = now - lastHistoryPushRef.current;
       const isPositionUpdate = lastActionTypeRef.current === "UPDATE_ENTITY_POSITION";
-      
+
       // For position updates, debounce to avoid cluttering history
       // For other actions, add immediately
       const shouldPush = !isPositionUpdate || timeSinceLastPush > 300;
-      
+
       if (shouldPush) {
         historyRef.current.push(diagram);
         lastHistoryPushRef.current = now;
       }
 
       // Auto-save diagram (debounced)
-      autoSaveDiagram(diagram);
+      autoSave(diagram);
     }
     isUndoRedoRef.current = false;
     lastActionTypeRef.current = null;
@@ -99,4 +99,3 @@ export function useDiagram() {
   }
   return context;
 }
-

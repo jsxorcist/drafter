@@ -114,4 +114,3 @@ function TextNoteNodeComponent({ data }: NodeProps<TextNoteNodeData>) {
 }
 
 export const TextNoteNode = memo(TextNoteNodeComponent);
-

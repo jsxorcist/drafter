@@ -87,4 +87,3 @@ export interface Diagram {
   drawings: Drawing[];
   metadata: DiagramMetadata;
 }
-

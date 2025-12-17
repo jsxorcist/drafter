@@ -117,7 +117,7 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
     case "ADD_DRAWING_STROKE": {
       // Check if drawing exists
       const drawingExists = state.drawings.some((d) => d.id === action.drawingId);
-      
+
       if (!drawingExists && action.stroke.points.length > 0) {
         // Create new drawing if it doesn't exist and stroke has points
         const newDrawing = {
@@ -140,9 +140,7 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
         return {
           ...state,
           drawings: state.drawings.map((d) =>
-            d.id === action.drawingId
-              ? { ...d, strokes: [...d.strokes, action.stroke] }
-              : d
+            d.id === action.drawingId ? { ...d, strokes: [...d.strokes, action.stroke] } : d
           ),
           metadata: { ...state.metadata, updatedAt: now },
         };
@@ -190,4 +188,3 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
     }
   }
 }
-

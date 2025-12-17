@@ -1,4 +1,15 @@
-import { Diagram, DiagramMetadata, Entity, EntityType, Position, Connection, TextNote, Drawing, Stroke, Point } from "./types";
+import {
+  Diagram,
+  DiagramMetadata,
+  Entity,
+  EntityType,
+  Position,
+  Connection,
+  TextNote,
+  Drawing,
+  Stroke,
+  Point,
+} from "./types";
 import { generateId } from "@/shared/lib/id-generator";
 import { DEFAULT_ENTITY_COLORS, DEFAULT_ENTITY_SHAPES } from "./constants";
 
@@ -39,11 +50,7 @@ export function createEntity(
   };
 }
 
-export function createConnection(
-  sourceId: string,
-  targetId: string,
-  label?: string
-): Connection {
+export function createConnection(sourceId: string, targetId: string, label?: string): Connection {
   return {
     id: generateId(),
     sourceId,
@@ -57,10 +64,7 @@ export function createConnection(
   };
 }
 
-export function createTextNote(
-  position: Position,
-  text: string = "Новая заметка"
-): TextNote {
+export function createTextNote(position: Position, text: string = "Новая заметка"): TextNote {
   return {
     id: generateId(),
     position,
@@ -96,4 +100,3 @@ export function createStroke(
     strokeWidth,
   };
 }
-

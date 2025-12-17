@@ -36,7 +36,10 @@ export const DEFAULT_ENTITY_COLORS: Record<EntityType, string> = {
   custom: "#6b7280",
 };
 
-export const DEFAULT_ENTITY_SHAPES: Record<EntityType, "rectangle" | "circle" | "diamond" | "ellipse"> = {
+export const DEFAULT_ENTITY_SHAPES: Record<
+  EntityType,
+  "rectangle" | "circle" | "diamond" | "ellipse"
+> = {
   process: "rectangle",
   component: "rectangle",
   actor: "ellipse",
@@ -44,4 +47,3 @@ export const DEFAULT_ENTITY_SHAPES: Record<EntityType, "rectangle" | "circle" | 
   data: "rectangle",
   custom: "rectangle",
 };
-

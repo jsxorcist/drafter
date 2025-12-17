@@ -59,7 +59,9 @@ export function DiagramPage() {
           console.log("Diagram saved successfully");
         } catch (error) {
           console.error("Failed to save diagram:", error);
-          alert(`Failed to save diagram: ${error instanceof Error ? error.message : "Unknown error"}`);
+          alert(
+            `Failed to save diagram: ${error instanceof Error ? error.message : "Unknown error"}`
+          );
         }
       }
     };
@@ -88,4 +90,3 @@ export function DiagramPage() {
     </div>
   );
 }
-

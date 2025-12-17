@@ -21,7 +21,12 @@ import { TextNoteNode } from "./TextNoteNode";
 import { transformEntitiesToNodes, transformTextNotesToNodes } from "./nodeTransform";
 import { transformConnectionsToEdges } from "./edgeTransform";
 import { Position, EntityType, Stroke } from "@/entities/diagram/types";
-import { createEntity, createConnection, createTextNote, createDrawing } from "@/entities/diagram/factory";
+import {
+  createEntity,
+  createConnection,
+  createTextNote,
+  createDrawing,
+} from "@/entities/diagram/factory";
 import { canCreateConnection } from "@/shared/lib/validation";
 import { DrawingMode } from "@/features/drawing-mode/DrawingMode";
 
@@ -162,7 +167,7 @@ export function Canvas({
       event.preventDefault();
       const entityType = event.dataTransfer.getData("application/entity-type") as EntityType | null;
       const isTextNote = event.dataTransfer.getData("application/text-note") === "true";
-      
+
       if (!reactFlowInstanceRef.current) {
         return;
       }
@@ -199,10 +204,7 @@ export function Canvas({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Check if we're typing in an input
-      if (
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement
-      ) {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
         return;
       }
 
@@ -218,7 +220,9 @@ export function Canvas({
             });
           });
         } else if (reactFlowInstanceRef.current) {
-          const selectedNodes = reactFlowInstanceRef.current.getNodes().filter((node) => node.selected);
+          const selectedNodes = reactFlowInstanceRef.current
+            .getNodes()
+            .filter((node) => node.selected);
           if (selectedNodes.length > 0) {
             event.preventDefault();
             selectedNodes.forEach((node) => {
@@ -247,7 +251,10 @@ export function Canvas({
       }
 
       // Ctrl+Y or Ctrl+Shift+Z: Redo
-      if ((event.ctrlKey && event.key === "y") || (event.ctrlKey && event.shiftKey && event.key === "z")) {
+      if (
+        (event.ctrlKey && event.key === "y") ||
+        (event.ctrlKey && event.shiftKey && event.key === "z")
+      ) {
         event.preventDefault();
         dispatch({ type: "REDO" });
       }
@@ -271,7 +278,7 @@ export function Canvas({
         const newDrawing = createDrawing();
         currentDrawingIdRef.current = newDrawing.id;
       }
-      
+
       dispatch({
         type: "ADD_DRAWING_STROKE",
         drawingId: currentDrawingIdRef.current,
@@ -347,4 +354,3 @@ export function Canvas({
     </div>
   );
 }
-

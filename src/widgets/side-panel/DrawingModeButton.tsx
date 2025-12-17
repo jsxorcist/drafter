@@ -41,4 +41,3 @@ export function DrawingModeButton({ isActive, onToggle }: DrawingModeButtonProps
     </button>
   );
 }
-

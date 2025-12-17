@@ -29,4 +29,3 @@ export function hasSavedDiagram(): boolean {
     return false;
   }
 }
-

@@ -72,4 +72,3 @@ export function validateDiagram(diagram: Diagram): boolean {
   }
   return true;
 }
-

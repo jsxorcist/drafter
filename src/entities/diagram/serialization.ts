@@ -37,7 +37,7 @@ export function deserializeDiagram(json: string): Diagram {
       // New format with versioning
       const serialized = parsed as SerializedDiagram;
       diagramData = serialized.diagram;
-      
+
       // Version compatibility check
       if (serialized.version !== CURRENT_VERSION) {
         console.warn(
@@ -117,4 +117,3 @@ export function getCurrentDiagramVersion(): string {
 export function getStorageKey(): string {
   return STORAGE_KEY;
 }
-

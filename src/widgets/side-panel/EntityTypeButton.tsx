@@ -1,5 +1,9 @@
 import { EntityType } from "@/entities/diagram/types";
-import { ENTITY_TYPE_LABELS, ENTITY_TYPE_ICONS, DEFAULT_ENTITY_COLORS } from "@/entities/diagram/constants";
+import {
+  ENTITY_TYPE_LABELS,
+  ENTITY_TYPE_ICONS,
+  DEFAULT_ENTITY_COLORS,
+} from "@/entities/diagram/constants";
 
 interface EntityTypeButtonProps {
   type: EntityType;
@@ -79,4 +83,3 @@ export function EntityTypeButton({ type, isSelected, onClick }: EntityTypeButton
     </button>
   );
 }
-

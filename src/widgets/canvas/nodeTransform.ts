@@ -38,9 +38,7 @@ export function transformTextNoteToNode(
     data: {
       text: note.text,
       style: note.style,
-      onTextUpdate: onTextUpdate
-        ? (newText: string) => onTextUpdate(note.id, newText)
-        : undefined,
+      onTextUpdate: onTextUpdate ? (newText: string) => onTextUpdate(note.id, newText) : undefined,
     },
     type: "textNote",
     draggable: true,
@@ -53,4 +51,3 @@ export function transformTextNotesToNodes(
 ): Node[] {
   return notes.map((note) => transformTextNoteToNode(note, onTextUpdate));
 }
-

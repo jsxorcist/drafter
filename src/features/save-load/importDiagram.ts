@@ -58,4 +58,3 @@ export function validateDiagramFile(file: File): { valid: boolean; error?: strin
 
   return { valid: true };
 }
-

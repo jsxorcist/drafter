@@ -81,8 +81,8 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
     boxShadow: isEditing
       ? "var(--shadow-lg)"
       : type === "decision"
-      ? "var(--shadow-xl)"
-      : "var(--shadow-md)",
+        ? "var(--shadow-xl)"
+        : "var(--shadow-md)",
     fontSize: "var(--font-size-sm)",
     fontWeight: "var(--font-weight-medium)",
     textAlign: "center",
@@ -190,4 +190,3 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
 }
 
 export const EntityNode = memo(EntityNodeComponent);
-

@@ -3,6 +3,8 @@ import { useDiagram } from "@/app/providers/DiagramProvider";
 import { saveDiagram } from "@/features/save-load/saveDiagram";
 import { exportDiagramToFile } from "@/features/save-load/exportDiagram";
 import { importDiagramFromFile, validateDiagramFile } from "@/features/save-load/importDiagram";
+import { ThemeToggle } from "@/features/theme-toggle/ThemeToggle";
+import { HelpButton } from "@/widgets/help-modal/HelpModal";
 
 export function Toolbar() {
   const { diagram, dispatch } = useDiagram();
@@ -24,7 +26,9 @@ export function Toolbar() {
       exportDiagramToFile(diagram);
     } catch (error) {
       console.error("Failed to export diagram:", error);
-      alert(`Failed to export diagram: ${error instanceof Error ? error.message : "Unknown error"}`);
+      alert(
+        `Failed to export diagram: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   };
 
@@ -53,7 +57,9 @@ export function Toolbar() {
       console.log("Diagram imported successfully");
     } catch (error) {
       console.error("Failed to import diagram:", error);
-      alert(`Failed to import diagram: ${error instanceof Error ? error.message : "Unknown error"}`);
+      alert(
+        `Failed to import diagram: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     } finally {
       // Reset input
       if (fileInputRef.current) {
@@ -157,7 +163,8 @@ export function Toolbar() {
         onChange={handleFileChange}
         style={{ display: "none" }}
       />
+      <ThemeToggle />
+      <HelpButton />
     </div>
   );
 }
-

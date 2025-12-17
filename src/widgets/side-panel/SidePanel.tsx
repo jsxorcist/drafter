@@ -40,12 +40,7 @@ export function SidePanel({
       </h2>
       <div>
         {ENTITY_TYPES.map((type) => (
-          <EntityTypeButton
-            key={type}
-            type={type}
-            isSelected={false}
-            onClick={() => {}}
-          />
+          <EntityTypeButton key={type} type={type} isSelected={false} onClick={() => {}} />
         ))}
       </div>
       <div
@@ -116,4 +111,3 @@ export function SidePanel({
     </div>
   );
 }
-
