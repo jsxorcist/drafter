@@ -77,6 +77,8 @@ export function EntityTypeButton({ type, isSelected, onClick }: EntityTypeButton
       onMouseUp={(e) => {
         e.currentTarget.style.cursor = "grab";
       }}
+      aria-label={`Создать сущность типа ${label}. Перетащите на рабочее поле для размещения.`}
+      title={`Перетащите на рабочее поле для создания сущности типа ${label}`}
     >
       <span style={{ fontSize: "1.2em" }}>{icon}</span>
       <span>{label}</span>

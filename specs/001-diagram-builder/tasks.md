@@ -209,22 +209,22 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T084 [P] Implement dark theme toggle in src/features/theme-toggle/ThemeToggle.tsx
-- [ ] T085 [P] Add dark theme CSS variables in src/shared/styles/tokens.css
-- [ ] T086 [P] Create theme persistence in LocalStorage in src/features/theme-toggle/ThemeToggle.tsx
-- [ ] T087 [P] Add Toolbar component with save/export/import buttons in src/widgets/toolbar/Toolbar.tsx
-- [ ] T088 Optimize React-Flow rendering for 50+ entities in src/widgets/canvas/Canvas.tsx
-- [ ] T089 Add debounce for auto-save to reduce LocalStorage writes in src/features/save-load/autoSave.ts
-- [ ] T090 Implement React.memo for EntityNode and TextNoteNode components in src/widgets/canvas/
-- [ ] T091 Add keyboard shortcuts help modal in src/widgets/help-modal/HelpModal.tsx
-- [ ] T092 Add error messages with user-friendly text in src/shared/ui/ErrorMessage.tsx
-- [ ] T093 Add loading states for save/load operations in src/features/save-load/
-- [ ] T094 Verify all components use CSS-переменные from tokens.css
-- [ ] T095 Run ESLint check and fix all no-any violations
-- [ ] T096 Verify optimistic UI for all user interactions
-- [ ] T097 Add ARIA labels for accessibility in all interactive components
-- [ ] T098 Test all user stories manually according to acceptance scenarios
-- [ ] T099 Validate quickstart.md instructions work correctly
+- [x] T084 [P] Implement dark theme toggle in src/features/theme-toggle/ThemeToggle.tsx
+- [x] T085 [P] Add dark theme CSS variables in src/shared/styles/tokens.css
+- [x] T086 [P] Create theme persistence in LocalStorage in src/features/theme-toggle/ThemeToggle.tsx
+- [x] T087 [P] Add Toolbar component with save/export/import buttons in src/widgets/toolbar/Toolbar.tsx
+- [x] T088 Optimize React-Flow rendering for 50+ entities in src/widgets/canvas/Canvas.tsx
+- [x] T089 Add debounce for auto-save to reduce LocalStorage writes in src/features/save-load/autoSave.ts
+- [x] T090 Implement React.memo for EntityNode and TextNoteNode components in src/widgets/canvas/
+- [x] T091 Add keyboard shortcuts help modal in src/widgets/help-modal/HelpModal.tsx
+- [x] T092 Add error messages with user-friendly text in src/shared/ui/ErrorMessage.tsx
+- [x] T093 Add loading states for save/load operations in src/features/save-load/
+- [x] T094 Verify all components use CSS-переменные from tokens.css
+- [x] T095 Run ESLint check and fix all no-any violations
+- [x] T096 Verify optimistic UI for all user interactions
+- [x] T097 Add ARIA labels for accessibility in all interactive components
+- [x] T098 Test all user stories manually according to acceptance scenarios
+- [x] T099 Validate quickstart.md instructions work correctly
 
 ---
 

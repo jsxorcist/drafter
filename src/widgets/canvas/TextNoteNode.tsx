@@ -78,6 +78,7 @@ function TextNoteNodeComponent({ data }: NodeProps<TextNoteNodeData>) {
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          aria-label="Редактирование текста заметки"
           style={{
             width: "100%",
             minHeight: "60px",
@@ -105,6 +106,9 @@ function TextNoteNodeComponent({ data }: NodeProps<TextNoteNodeData>) {
           }}
           onDoubleClick={handleDoubleClick}
           title="Double-click to edit (Ctrl+Enter to save)"
+          aria-label={`Текстовая заметка: ${text || "Пустая заметка"}. Двойной клик для редактирования.`}
+          role="button"
+          tabIndex={0}
         >
           {text || "Пустая заметка"}
         </div>

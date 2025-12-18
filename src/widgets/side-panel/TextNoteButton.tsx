@@ -59,6 +59,8 @@ export function TextNoteButton({ onClick }: TextNoteButtonProps) {
       onMouseUp={(e) => {
         e.currentTarget.style.cursor = "grab";
       }}
+      aria-label="Создать текстовую заметку. Перетащите на рабочее поле для размещения."
+      title="Перетащите на рабочее поле для создания текстовой заметки"
     >
       <span style={{ fontSize: "1.2em" }}>📝</span>
       <span>Текстовая заметка</span>

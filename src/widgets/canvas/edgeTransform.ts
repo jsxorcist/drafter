@@ -16,11 +16,18 @@ function mapArrowTypeToMarkerType(
 }
 
 export function transformConnectionToEdge(connection: Connection): Edge {
+  // Use stored handles - both source and target are fixed as chosen by user
+  // If not stored, use defaults
+  const sourceHandle = connection.sourceHandle || "bottom";
+  const targetHandle = connection.targetHandle || "top";
+
   return {
     id: connection.id,
     source: connection.sourceId,
     target: connection.targetId,
-    type: "default",
+    sourceHandle,
+    targetHandle,
+    type: "smoothstep", // Use smoothstep for smooth rounded corners
     animated: false,
     style: {
       stroke: connection.style.color,
@@ -35,5 +42,7 @@ export function transformConnectionToEdge(connection: Connection): Edge {
 }
 
 export function transformConnectionsToEdges(connections: Connection[]): Edge[] {
-  return connections.map(transformConnectionToEdge);
+  return connections.map((connection) => {
+    return transformConnectionToEdge(connection);
+  });
 }

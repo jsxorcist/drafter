@@ -7,6 +7,7 @@ export type DiagramAction =
   | { type: "UPDATE_ENTITY_POSITION"; entityId: string; position: { x: number; y: number } }
   | { type: "UPDATE_ENTITY_LABEL"; entityId: string; label: string }
   | { type: "CREATE_CONNECTION"; connection: Connection }
+  | { type: "UPDATE_CONNECTION"; connectionId: string; sourceHandle?: string; targetHandle?: string }
   | { type: "DELETE_CONNECTION"; connectionId: string }
   | { type: "CREATE_TEXT_NOTE"; note: TextNote }
   | { type: "DELETE_TEXT_NOTE"; noteId: string }
@@ -66,6 +67,22 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
       return {
         ...state,
         connections: [...state.connections, action.connection],
+        metadata: { ...state.metadata, updatedAt: now },
+      };
+    }
+
+    case "UPDATE_CONNECTION": {
+      return {
+        ...state,
+        connections: state.connections.map((c) =>
+          c.id === action.connectionId
+            ? {
+                ...c,
+                sourceHandle: action.sourceHandle !== undefined ? action.sourceHandle : c.sourceHandle,
+                targetHandle: action.targetHandle !== undefined ? action.targetHandle : c.targetHandle,
+              }
+            : c
+        ),
         metadata: { ...state.metadata, updatedAt: now },
       };
     }

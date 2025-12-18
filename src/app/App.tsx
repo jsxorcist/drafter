@@ -11,34 +11,37 @@ function AppContent() {
 
   useEffect(() => {
     if (!hasCheckedSaved) {
-      try {
-        if (hasSavedDiagram()) {
-          const shouldRestore = window.confirm(
-            "Обнаружена сохраненная схема. Хотите восстановить ее?"
-          );
-          if (shouldRestore) {
-            try {
-              const savedDiagram = loadDiagram();
-              if (savedDiagram) {
-                dispatch({
-                  type: "LOAD_DIAGRAM",
-                  diagram: savedDiagram,
-                });
+      const loadSavedDiagram = async () => {
+        try {
+          if (hasSavedDiagram()) {
+            const shouldRestore = window.confirm(
+              "Обнаружена сохраненная схема. Хотите восстановить ее?"
+            );
+            if (shouldRestore) {
+              try {
+                const savedDiagram = await loadDiagram();
+                if (savedDiagram) {
+                  dispatch({
+                    type: "LOAD_DIAGRAM",
+                    diagram: savedDiagram,
+                  });
+                }
+              } catch (error) {
+                console.error("Failed to restore diagram:", error);
+                alert(
+                  `Не удалось восстановить схему: ${error instanceof Error ? error.message : "Unknown error"}`
+                );
               }
-            } catch (error) {
-              console.error("Failed to restore diagram:", error);
-              alert(
-                `Не удалось восстановить схему: ${error instanceof Error ? error.message : "Unknown error"}`
-              );
             }
           }
+        } catch (error) {
+          console.error("Error in AppContent:", error);
+          setError(error instanceof Error ? error : new Error("Unknown error"));
+        } finally {
+          setHasCheckedSaved(true);
         }
-      } catch (error) {
-        console.error("Error in AppContent:", error);
-        setError(error instanceof Error ? error : new Error("Unknown error"));
-      } finally {
-        setHasCheckedSaved(true);
-      }
+      };
+      loadSavedDiagram();
     }
   }, [hasCheckedSaved, dispatch]);
 

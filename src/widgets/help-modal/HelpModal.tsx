@@ -71,7 +71,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           <h3 style={{ color: "var(--color-text-primary)" }}>Сохранение</h3>
           <ul style={{ color: "var(--color-text-secondary)" }}>
             <li>Автосохранение при изменениях</li>
-            <li>Кнопка "Сохранить" для принудительного сохранения</li>
+            <li>Кнопка &quot;Сохранить&quot; для принудительного сохранения</li>
             <li>Экспорт в JSON файл</li>
             <li>Импорт из JSON файла</li>
           </ul>

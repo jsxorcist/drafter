@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useDiagram } from "@/app/providers/DiagramProvider";
 import { saveDiagram } from "@/features/save-load/saveDiagram";
 import { exportDiagramToFile } from "@/features/save-load/exportDiagram";
@@ -9,15 +9,19 @@ import { HelpButton } from "@/widgets/help-modal/HelpModal";
 export function Toolbar() {
   const { diagram, dispatch } = useDiagram();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setIsSaving(true);
     try {
-      saveDiagram(diagram);
-      // Visual feedback could be added here (toast notification, etc.)
+      await saveDiagram(diagram);
       console.log("Diagram saved successfully");
     } catch (error) {
       console.error("Failed to save diagram:", error);
       alert(`Failed to save diagram: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -47,13 +51,13 @@ export function Toolbar() {
       return;
     }
 
+    setIsImporting(true);
     try {
       const importedDiagram = await importDiagramFromFile(file);
       dispatch({
         type: "LOAD_DIAGRAM",
         diagram: importedDiagram,
       });
-      // Visual feedback could be added here
       console.log("Diagram imported successfully");
     } catch (error) {
       console.error("Failed to import diagram:", error);
@@ -61,6 +65,7 @@ export function Toolbar() {
         `Failed to import diagram: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     } finally {
+      setIsImporting(false);
       // Reset input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -87,26 +92,34 @@ export function Toolbar() {
       <button
         type="button"
         onClick={handleSave}
+        disabled={isSaving}
         style={{
           padding: "var(--spacing-sm) var(--spacing-md)",
-          backgroundColor: "var(--color-primary)",
+          backgroundColor: isSaving ? "var(--color-secondary)" : "var(--color-primary)",
           color: "var(--color-text-inverse)",
           border: "none",
           borderRadius: "var(--radius-md)",
-          cursor: "pointer",
+          cursor: isSaving ? "not-allowed" : "pointer",
           fontSize: "var(--font-size-sm)",
           fontWeight: "var(--font-weight-medium)",
           transition: "var(--transition-base)",
+          opacity: isSaving ? 0.7 : 1,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--color-primary-hover)";
+          if (!isSaving) {
+            e.currentTarget.style.backgroundColor = "var(--color-primary-hover)";
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--color-primary)";
+          if (!isSaving) {
+            e.currentTarget.style.backgroundColor = "var(--color-primary)";
+          }
         }}
         title="Save diagram to browser storage (Ctrl+S)"
+        aria-label="Сохранить схему"
+        aria-busy={isSaving}
       >
-        💾 Сохранить
+        {isSaving ? "⏳ Сохранение..." : "💾 Сохранить"}
       </button>
       <button
         type="button"
@@ -129,32 +142,41 @@ export function Toolbar() {
           e.currentTarget.style.backgroundColor = "var(--color-surface)";
         }}
         title="Export diagram to JSON file"
+        aria-label="Экспортировать схему в JSON файл"
       >
         📤 Экспорт
       </button>
       <button
         type="button"
         onClick={handleImportClick}
+        disabled={isImporting}
         style={{
           padding: "var(--spacing-sm) var(--spacing-md)",
           backgroundColor: "var(--color-surface)",
           color: "var(--color-text-primary)",
           border: "1px solid var(--color-border)",
           borderRadius: "var(--radius-md)",
-          cursor: "pointer",
+          cursor: isImporting ? "not-allowed" : "pointer",
           fontSize: "var(--font-size-sm)",
           fontWeight: "var(--font-weight-medium)",
           transition: "var(--transition-base)",
+          opacity: isImporting ? 0.7 : 1,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+          if (!isImporting) {
+            e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--color-surface)";
+          if (!isImporting) {
+            e.currentTarget.style.backgroundColor = "var(--color-surface)";
+          }
         }}
         title="Import diagram from JSON file"
+        aria-label="Импортировать схему из JSON файла"
+        aria-busy={isImporting}
       >
-        📥 Импорт
+        {isImporting ? "⏳ Импорт..." : "📥 Импорт"}
       </button>
       <input
         ref={fileInputRef}

@@ -51,6 +51,8 @@ export function Canvas({
   const { diagram, dispatch } = useDiagram();
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const currentDrawingIdRef = useRef<string | null>(drawingId || null);
+  // Store source handle when starting connection
+  const connectionSourceHandleRef = useRef<string | null>(null);
 
   // Handle entity label update
   const handleLabelUpdate = useCallback(
@@ -83,11 +85,10 @@ export function Canvas({
     return [...entityNodes, ...textNoteNodes];
   }, [diagram.entities, diagram.textNotes, handleLabelUpdate, handleTextNoteUpdate]);
 
-  // Transform connections to React-Flow edges
-  const edges = useMemo<Edge[]>(
-    () => transformConnectionsToEdges(diagram.connections),
-    [diagram.connections]
-  );
+  // Transform connections to React-Flow edges - handles are fixed as chosen by user
+  const edges = useMemo<Edge[]>(() => {
+    return transformConnectionsToEdges(diagram.connections);
+  }, [diagram.connections]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
@@ -121,10 +122,14 @@ export function Canvas({
     [nodes, dispatch, diagram.textNotes]
   );
 
+  // Track previous edges to detect handle changes
+  const previousEdgesRef = useRef<Edge[]>([]);
+
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => {
-      applyEdgeChanges(changes, edges);
-      // Handle edge deletion
+      const updatedEdges = applyEdgeChanges(changes, edges);
+      
+      // Handle edge changes (deletion)
       changes.forEach((change) => {
         if (change.type === "remove") {
           dispatch({
@@ -133,33 +138,70 @@ export function Canvas({
           });
         }
       });
+
+      previousEdgesRef.current = updatedEdges;
     },
     [edges, dispatch]
   );
 
+  // Handle edge updates when user drags connection endpoints
+  const onEdgeUpdate = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      if (newConnection.source && newConnection.target && newConnection.source !== newConnection.target) {
+        // Update connection with new handles
+        dispatch({
+          type: "UPDATE_CONNECTION",
+          connectionId: oldEdge.id,
+          sourceHandle: newConnection.sourceHandle || undefined,
+          targetHandle: newConnection.targetHandle || undefined,
+        });
+      }
+    },
+    [dispatch]
+  );
+
   const onConnect = useCallback(
     (connection: Connection) => {
-      if (connection.source && connection.target) {
+      if (connection.source && connection.target && connection.source !== connection.target) {
         // Validate connection before creating
         if (canCreateConnection(connection.source, connection.target, diagram)) {
           const newConnection = createConnection(connection.source, connection.target);
+          // Store both source and target handles from which connection was created
+          // IMPORTANT: sourceHandle is where connection STARTS, targetHandle is where it ENDS
+          newConnection.sourceHandle = connection.sourceHandle || connectionSourceHandleRef.current || "bottom";
+          newConnection.targetHandle = connection.targetHandle || "top";
+          // Ensure handles are strings, not null
+          if (newConnection.sourceHandle === null || newConnection.sourceHandle === undefined) {
+            newConnection.sourceHandle = "bottom";
+          }
+          if (newConnection.targetHandle === null || newConnection.targetHandle === undefined) {
+            newConnection.targetHandle = "top";
+          }
           dispatch({
             type: "CREATE_CONNECTION",
             connection: newConnection,
           });
+          // Reset source handle ref
+          connectionSourceHandleRef.current = null;
         }
       }
     },
     [dispatch, diagram]
   );
 
-  const onConnectStart = useCallback(() => {
-    // Visual feedback: connection preview is handled by React-Flow automatically
-  }, []);
+  const onConnectStart = useCallback(
+    (_event: React.MouseEvent | React.TouchEvent, { handleId }: { handleId?: string | null }) => {
+      // Store the source handle from which connection starts
+      connectionSourceHandleRef.current = handleId || null;
+    },
+    []
+  );
 
   const onConnectEnd = useCallback(() => {
-    // Visual feedback: connection preview is handled by React-Flow automatically
+    // Reset source handle ref if connection was not completed
+    connectionSourceHandleRef.current = null;
   }, []);
+
 
   // Handle drop from side panel
   const onDrop = useCallback(
@@ -172,10 +214,10 @@ export function Canvas({
         return;
       }
 
-      const reactFlowBounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      // Use clientX/clientY directly - screenToFlowPosition handles all transformations
       const position = reactFlowInstanceRef.current.screenToFlowPosition({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
+        x: event.clientX,
+        y: event.clientY,
       });
 
       if (isTextNote) {
@@ -187,9 +229,15 @@ export function Canvas({
         const newTextNote = createTextNote(adjustedPosition);
         dispatch({ type: "CREATE_TEXT_NOTE", note: newTextNote });
       } else if (entityType) {
-        const newEntity = createEntity(entityType, position);
+        // Adjust position to center the entity on cursor
+        // Default entity size is approximately 150x60
+        const adjustedPosition: Position = {
+          x: position.x - 75, // Half of default width (150px)
+          y: position.y - 30, // Half of default height (60px)
+        };
+        const newEntity = createEntity(entityType, adjustedPosition);
         dispatch({ type: "CREATE_ENTITY", entity: newEntity });
-        onEntityDrop?.(entityType, position);
+        onEntityDrop?.(entityType, adjustedPosition);
       }
     },
     [dispatch, onEntityDrop]
@@ -208,7 +256,7 @@ export function Canvas({
         return;
       }
 
-      // Delete/Backspace: Delete selected entities, text notes, or drawings
+      // Delete/Backspace: Delete selected entities, text notes, edges, or drawings
       if (event.key === "Delete" || event.key === "Backspace") {
         if (isDrawingMode && diagram.drawings.length > 0) {
           // In drawing mode, delete all drawings
@@ -220,6 +268,22 @@ export function Canvas({
             });
           });
         } else if (reactFlowInstanceRef.current) {
+          // Check for selected edges first
+          const selectedEdges = reactFlowInstanceRef.current
+            .getEdges()
+            .filter((edge) => edge.selected);
+          if (selectedEdges.length > 0) {
+            event.preventDefault();
+            selectedEdges.forEach((edge) => {
+              dispatch({
+                type: "DELETE_CONNECTION",
+                connectionId: edge.id,
+              });
+            });
+            return;
+          }
+
+          // Then check for selected nodes
           const selectedNodes = reactFlowInstanceRef.current
             .getNodes()
             .filter((node) => node.selected);
@@ -317,6 +381,7 @@ export function Canvas({
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onEdgeUpdate={onEdgeUpdate}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
@@ -328,17 +393,39 @@ export function Canvas({
         fitView
         style={{ backgroundColor: "var(--color-background)" }}
         defaultEdgeOptions={{
-          type: "default",
+          type: "smoothstep", // Smooth rounded corners for better visual appearance
           animated: false,
           style: {
-            stroke: "#6b7280",
+            stroke: "var(--color-secondary)",
             strokeWidth: 2,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: "#6b7280",
+            color: "var(--color-secondary)",
           },
         }}
+        // Configure connection line style for preview (phantom line)
+        connectionLineStyle={{
+          strokeWidth: 2,
+          stroke: "var(--color-secondary)",
+        }}
+        // Enable edge selection and deletion
+        edgesUpdatable={true}
+        edgesFocusable={true}
+        // Performance optimizations for 50+ entities
+        nodesDraggable={true}
+        nodesConnectable={true}
+        elementsSelectable={true}
+        selectNodesOnDrag={false}
+        panOnDrag={[1, 2]} // Pan with middle or right mouse button
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        minZoom={0.1}
+        maxZoom={4}
+        // Optimize rendering for large diagrams
+        onlyRenderVisibleElements={nodes.length > 50}
+        // Reduce re-renders
+        elevateNodesOnSelect={false}
       >
         <Background />
         <Controls />

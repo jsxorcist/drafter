@@ -5,17 +5,25 @@ const STORAGE_KEY = getStorageKey();
 
 /**
  * Save diagram to LocalStorage
+ * Returns a promise to support async operations and loading states
  */
-export function saveDiagram(diagram: Diagram): void {
-  try {
-    const serialized = serializeDiagram(diagram);
-    localStorage.setItem(STORAGE_KEY, serialized);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to save diagram to LocalStorage: ${error.message}`);
+export function saveDiagram(diagram: Diagram): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const serialized = serializeDiagram(diagram);
+      localStorage.setItem(STORAGE_KEY, serialized);
+      // Simulate async operation for better UX (loading states)
+      setTimeout(() => {
+        resolve();
+      }, 100);
+    } catch (error) {
+      if (error instanceof Error) {
+        reject(new Error(`Failed to save diagram to LocalStorage: ${error.message}`));
+      } else {
+        reject(new Error("Failed to save diagram to LocalStorage: unknown error"));
+      }
     }
-    throw new Error("Failed to save diagram to LocalStorage: unknown error");
-  }
+  });
 }
 
 /**

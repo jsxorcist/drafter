@@ -35,6 +35,8 @@ export function DrawingModeButton({ isActive, onToggle }: DrawingModeButtonProps
           e.currentTarget.style.backgroundColor = "var(--color-surface)";
         }
       }}
+      aria-label={isActive ? "Режим рисования активен. Нажмите для выхода." : "Включить режим рисования"}
+      aria-pressed={isActive}
     >
       <span style={{ fontSize: "1.2em" }}>✏️</span>
       <span>{isActive ? "Режим рисования (активен)" : "Режим рисования"}</span>

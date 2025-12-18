@@ -27,7 +27,8 @@ export function DiagramProvider({ children }: DiagramProviderProps) {
   // Initialize history with initial state
   useEffect(() => {
     historyRef.current.initialize(initialDiagram);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Track state changes for history (except undo/redo actions)
   // Position updates are debounced to avoid cluttering history

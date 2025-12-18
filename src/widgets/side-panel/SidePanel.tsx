@@ -89,6 +89,7 @@ export function SidePanel({
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = "var(--color-error)";
                 }}
+                aria-label={`Удалить все рисунки. Всего рисунков: ${drawingsCount}`}
               >
                 Удалить все рисунки ({drawingsCount})
               </button>

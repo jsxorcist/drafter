@@ -22,6 +22,7 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
   const icon = ENTITY_TYPE_ICONS[type] || "🔷";
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(label);
+  const [isHovered, setIsHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Get unique border styles based on entity type
@@ -58,7 +59,7 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
     diamond: {
       width: `${width}px`,
       height: `${height}px`,
-      transform: "rotate(45deg)",
+      clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
       borderRadius: "var(--radius-sm)",
     },
     ellipse: {
@@ -93,17 +94,15 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
     position: "relative",
   };
 
-  const labelStyle: React.CSSProperties =
-    shape === "diamond"
-      ? {
-          transform: "rotate(-45deg)",
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }
-      : {};
+  // Outer wrapper to allow handles to extend beyond node boundaries
+  const wrapperStyle: React.CSSProperties = {
+    position: "relative",
+    overflow: "visible",
+    width: "100%",
+    height: "100%",
+  };
+
+  const labelStyle: React.CSSProperties = {};
 
   // Focus input when editing starts
   useEffect(() => {
@@ -139,15 +138,101 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
   };
 
   return (
-    <div style={nodeStyle}>
-      <Handle type="target" position={Position.Top} />
-      {isEditing ? (
+    <div
+      style={wrapperStyle}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Handles on all sides for flexible connection points - visible only on hover */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          top: "-5px !important",
+          left: "50% !important",
+          transform: "translateX(-50%) !important",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        id="right"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          right: "-5px !important",
+          top: "50% !important",
+          transform: "translateY(-50%) !important",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          bottom: "-5px !important",
+          left: "50% !important",
+          transform: "translateX(-50%) !important",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="left"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          left: "-5px !important",
+          top: "50% !important",
+          transform: "translateY(-50%) !important",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      <div style={nodeStyle}>
+        {isEditing ? (
         <input
           ref={inputRef}
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          aria-label="Редактирование названия сущности"
           style={{
             ...labelStyle,
             background: "rgba(255, 255, 255, 0.2)",
@@ -170,21 +255,24 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
             cursor: "text",
             userSelect: "none",
             display: "flex",
-            flexDirection: shape === "diamond" ? "row" : "column",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: shape === "diamond" ? "var(--spacing-xs)" : "var(--spacing-xs)",
+            gap: "var(--spacing-xs)",
             width: "100%",
-            flexWrap: shape === "diamond" ? "wrap" : "nowrap",
+            flexWrap: "nowrap",
           }}
           onDoubleClick={handleDoubleClick}
           title="Double-click to edit"
+          aria-label={`Сущность: ${label}. Двойной клик для редактирования.`}
+          role="button"
+          tabIndex={0}
         >
           <span style={{ fontSize: "1.5em", lineHeight: 1, flexShrink: 0 }}>{icon}</span>
           <span style={{ fontSize: "0.9em", textAlign: "center" }}>{label}</span>
         </div>
-      )}
-      <Handle type="source" position={Position.Bottom} />
+        )}
+      </div>
     </div>
   );
 }

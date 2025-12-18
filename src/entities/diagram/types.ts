@@ -34,6 +34,8 @@ export interface Connection {
   targetId: string;
   label?: string;
   style: ConnectionStyle;
+  sourceHandle?: string; // Store the handle from which connection was created
+  targetHandle?: string; // Store the handle to which connection was attached
 }
 
 export interface TextNoteStyle {
