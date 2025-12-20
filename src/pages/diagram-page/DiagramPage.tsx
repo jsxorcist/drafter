@@ -9,7 +9,9 @@ import { saveDiagram } from "@/features/save-load/saveDiagram";
 
 export function DiagramPage() {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [isEraserMode, setIsEraserMode] = useState(false);
   const [currentDrawingId, setCurrentDrawingId] = useState<string | null>(null);
+  const [strokeWidth, setStrokeWidth] = useState(2);
   const { diagram, dispatch } = useDiagram();
 
   const handleEntityDrop = (entityType: EntityType, position: Position) => {
@@ -77,15 +79,21 @@ export function DiagramPage() {
       <Toolbar />
       <SidePanel
         isDrawingMode={isDrawingMode}
+        isEraserMode={isEraserMode}
         onDrawingModeToggle={handleDrawingModeToggle}
+        onEraserModeToggle={() => setIsEraserMode(!isEraserMode)}
         onDeleteAllDrawings={handleDeleteAllDrawings}
         drawingsCount={drawingsCount}
+        strokeWidth={strokeWidth}
+        onStrokeWidthChange={setStrokeWidth}
       />
       <Canvas
         onEntityDrop={handleEntityDrop}
         isDrawingMode={isDrawingMode}
+        isEraserMode={isEraserMode}
         drawingId={currentDrawingId}
         onDrawingStart={handleDrawingStart}
+        strokeWidth={strokeWidth}
       />
     </div>
   );

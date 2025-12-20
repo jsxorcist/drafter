@@ -25,13 +25,7 @@ export function validateConnection(connection: Connection, diagram: Diagram): bo
   if (!sourceExists || !targetExists) {
     return false;
   }
-  // Check for duplicate connections
-  const duplicateExists = diagram.connections.some(
-    (c) => c.sourceId === connection.sourceId && c.targetId === connection.targetId
-  );
-  if (duplicateExists) {
-    return false;
-  }
+  // Allow multiple connections between same entities
   return true;
 }
 
@@ -44,11 +38,8 @@ export function canCreateConnection(sourceId: string, targetId: string, diagram:
   if (!sourceExists || !targetExists) {
     return false;
   }
-  // Check for duplicate connections
-  const duplicateExists = diagram.connections.some(
-    (c) => c.sourceId === sourceId && c.targetId === targetId
-  );
-  return !duplicateExists;
+  // Allow multiple connections between same entities
+  return true;
 }
 
 export function validateDiagram(diagram: Diagram): boolean {

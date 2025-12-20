@@ -18,6 +18,39 @@ body {
   overflow: hidden;
 }
 
+/* Scrollbar gutter support for stable layout */
+@supports (scrollbar-gutter: stable) {
+  .scrollable {
+    scrollbar-gutter: stable;
+  }
+}
+
+/* Fallback for browsers without scrollbar-gutter support */
+@supports not (scrollbar-gutter: stable) {
+  .scrollable {
+    /* Reserve space for scrollbar (approximately 15-17px) */
+    padding-right: 0;
+  }
+  
+  .scrollable::-webkit-scrollbar {
+    width: 15px;
+  }
+  
+  .scrollable::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollable::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 8px;
+    border: 3px solid var(--color-surface);
+  }
+  
+  .scrollable::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-secondary);
+  }
+}
+
 :root {
   /* Colors - Light Theme */
   --color-primary: #3b82f6;

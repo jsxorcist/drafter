@@ -43,7 +43,7 @@ export const DEFAULT_ENTITY_SHAPES: Record<
   process: "rectangle",
   component: "rectangle",
   actor: "ellipse",
-  decision: "diamond",
+  decision: "rectangle",
   data: "rectangle",
   custom: "rectangle",
 };

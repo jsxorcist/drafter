@@ -45,7 +45,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           <h3 style={{ color: "var(--color-text-primary)" }}>Создание сущностей</h3>
           <ul style={{ color: "var(--color-text-secondary)" }}>
             <li>Выберите тип сущности в боковой панели</li>
-            <li>Кликните на рабочее поле для размещения</li>
+            <li>Перетащите на рабочее поле для размещения</li>
           </ul>
         </div>
 
@@ -64,6 +64,17 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <li>Delete - удалить выделенную сущность</li>
             <li>Ctrl+Z - отменить действие</li>
             <li>Ctrl+Y - повторить действие</li>
+          </ul>
+        </div>
+
+        <div style={{ marginBottom: "var(--spacing-lg)" }}>
+          <h3 style={{ color: "var(--color-text-primary)" }}>Режим рисования</h3>
+          <ul style={{ color: "var(--color-text-secondary)" }}>
+            <li>Включите режим рисования в боковой панели</li>
+            <li>Используйте мышь для рисования на рабочем поле</li>
+            <li>Настройте размер маркера с помощью ползунка</li>
+            <li>Режим ластика: включите кнопку &quot;Режим ластика&quot; и кликните по рисунку для удаления</li>
+            <li>При стирании удаляется только один рисунок за клик</li>
           </ul>
         </div>
 

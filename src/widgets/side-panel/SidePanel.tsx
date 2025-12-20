@@ -5,27 +5,38 @@ import { DrawingModeButton } from "./DrawingModeButton";
 
 interface SidePanelProps {
   isDrawingMode?: boolean;
+  isEraserMode?: boolean;
   onDrawingModeToggle?: () => void;
+  onEraserModeToggle?: () => void;
   onDeleteAllDrawings?: () => void;
   drawingsCount?: number;
+  strokeWidth?: number;
+  onStrokeWidthChange?: (width: number) => void;
 }
 
 export function SidePanel({
   isDrawingMode = false,
+  isEraserMode = false,
   onDrawingModeToggle,
+  onEraserModeToggle,
   onDeleteAllDrawings,
   drawingsCount = 0,
+  strokeWidth = 2,
+  onStrokeWidthChange,
 }: SidePanelProps) {
   return (
     <div
+      className="scrollable"
       style={{
-        width: "250px",
+        width: "280px",
         height: "100vh",
         backgroundColor: "var(--color-surface)",
         borderRight: "1px solid var(--color-border)",
         padding: "var(--spacing-lg)",
         overflowY: "auto",
+        scrollbarGutter: "stable",
         boxShadow: "var(--shadow-sm)",
+        boxSizing: "border-box",
       }}
     >
       <h2
@@ -66,6 +77,79 @@ export function SidePanel({
         {onDrawingModeToggle && (
           <>
             <DrawingModeButton isActive={isDrawingMode} onToggle={onDrawingModeToggle} />
+            {isDrawingMode && (
+              <>
+                {onEraserModeToggle && (
+                  <button
+                    type="button"
+                    onClick={onEraserModeToggle}
+                    style={{
+                      padding: "var(--spacing-md)",
+                      marginTop: "var(--spacing-sm)",
+                      marginBottom: "var(--spacing-sm)",
+                      backgroundColor: isEraserMode ? "var(--color-primary)" : "var(--color-surface)",
+                      color: isEraserMode ? "var(--color-text-inverse)" : "var(--color-text-primary)",
+                      border: `2px solid ${isEraserMode ? "var(--color-primary)" : "var(--color-border)"}`,
+                      borderRadius: "var(--radius-md)",
+                      cursor: "pointer",
+                      fontSize: "var(--font-size-sm)",
+                      fontWeight: "var(--font-weight-medium)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--spacing-sm)",
+                      transition: "var(--transition-base)",
+                      width: "100%",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isEraserMode) {
+                        e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isEraserMode) {
+                        e.currentTarget.style.backgroundColor = "var(--color-surface)";
+                      }
+                    }}
+                    aria-label={isEraserMode ? "Режим ластика активен. Нажмите для выхода." : "Включить режим ластика"}
+                    aria-pressed={isEraserMode}
+                  >
+                    <span style={{ fontSize: "1.2em" }}>🧹</span>
+                    <span>{isEraserMode ? "Режим ластика (активен)" : "Режим ластика"}</span>
+                  </button>
+                )}
+                {onStrokeWidthChange && !isEraserMode && (
+                  <div
+                    style={{
+                      marginTop: "var(--spacing-sm)",
+                      marginBottom: "var(--spacing-sm)",
+                    }}
+                  >
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "var(--font-size-sm)",
+                        color: "var(--color-text-secondary)",
+                        marginBottom: "var(--spacing-xs)",
+                      }}
+                    >
+                      Размер маркера: {strokeWidth}px
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="20"
+                      value={strokeWidth}
+                      onChange={(e) => onStrokeWidthChange(Number(e.target.value))}
+                      style={{
+                        width: "100%",
+                        cursor: "pointer",
+                      }}
+                      aria-label="Размер маркера"
+                    />
+                  </div>
+                )}
+              </>
+            )}
             {isDrawingMode && drawingsCount > 0 && onDeleteAllDrawings && (
               <button
                 type="button"
@@ -89,9 +173,9 @@ export function SidePanel({
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = "var(--color-error)";
                 }}
-                aria-label={`Удалить все рисунки. Всего рисунков: ${drawingsCount}`}
+                aria-label="Удалить все рисунки"
               >
-                Удалить все рисунки ({drawingsCount})
+                Удалить все рисунки
               </button>
             )}
           </>

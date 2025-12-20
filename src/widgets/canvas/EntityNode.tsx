@@ -59,7 +59,7 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
     diamond: {
       width: `${width}px`,
       height: `${height}px`,
-      clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+      transform: "rotate(45deg)",
       borderRadius: "var(--radius-sm)",
     },
     ellipse: {
@@ -102,7 +102,17 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
     height: "100%",
   };
 
-  const labelStyle: React.CSSProperties = {};
+  const labelStyle: React.CSSProperties =
+    shape === "diamond"
+      ? {
+          transform: "rotate(-45deg)",
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }
+      : {};
 
   // Focus input when editing starts
   useEffect(() => {
@@ -144,8 +154,10 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Handles on all sides for flexible connection points - visible only on hover */}
+      {/* Each position has both source and target handles to allow connections in both directions */}
+      {/* Top */}
       <Handle
-        type="target"
+        type="source"
         position={Position.Top}
         id="top"
         style={{
@@ -154,9 +166,50 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           background: "var(--color-primary)",
           border: "2px solid var(--color-background)",
           borderRadius: "50%",
-          top: "-5px !important",
-          left: "50% !important",
-          transform: "translateX(-50%) !important",
+          top: "-5px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top-target"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          top: "-5px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      {/* Right */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          right: "-5px",
+          top: "50%",
+          transform: "translateY(-50%)",
           position: "absolute",
           zIndex: 10,
           opacity: isHovered ? 1 : 0,
@@ -167,16 +220,16 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
       <Handle
         type="target"
         position={Position.Right}
-        id="right"
+        id="right-target"
         style={{
           width: "10px",
           height: "10px",
           background: "var(--color-primary)",
           border: "2px solid var(--color-background)",
           borderRadius: "50%",
-          right: "-5px !important",
-          top: "50% !important",
-          transform: "translateY(-50%) !important",
+          right: "-5px",
+          top: "50%",
+          transform: "translateY(-50%)",
           position: "absolute",
           zIndex: 10,
           opacity: isHovered ? 1 : 0,
@@ -184,6 +237,7 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           pointerEvents: isHovered ? "auto" : "none",
         }}
       />
+      {/* Bottom */}
       <Handle
         type="source"
         position={Position.Bottom}
@@ -194,9 +248,9 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           background: "var(--color-primary)",
           border: "2px solid var(--color-background)",
           borderRadius: "50%",
-          bottom: "-5px !important",
-          left: "50% !important",
-          transform: "translateX(-50%) !important",
+          bottom: "-5px",
+          left: "50%",
+          transform: "translateX(-50%)",
           position: "absolute",
           zIndex: 10,
           opacity: isHovered ? 1 : 0,
@@ -204,6 +258,27 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           pointerEvents: isHovered ? "auto" : "none",
         }}
       />
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        id="bottom-target"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          bottom: "-5px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+      {/* Left */}
       <Handle
         type="source"
         position={Position.Left}
@@ -214,9 +289,9 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           background: "var(--color-primary)",
           border: "2px solid var(--color-background)",
           borderRadius: "50%",
-          left: "-5px !important",
-          top: "50% !important",
-          transform: "translateY(-50%) !important",
+          left: "-5px",
+          top: "50%",
+          transform: "translateY(-50%)",
           position: "absolute",
           zIndex: 10,
           opacity: isHovered ? 1 : 0,
@@ -224,8 +299,28 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           pointerEvents: isHovered ? "auto" : "none",
         }}
       />
-      <div style={nodeStyle}>
-        {isEditing ? (
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="left-target"
+        style={{
+          width: "10px",
+          height: "10px",
+          background: "var(--color-primary)",
+          border: "2px solid var(--color-background)",
+          borderRadius: "50%",
+          left: "-5px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          position: "absolute",
+          zIndex: 10,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.2s ease-in-out",
+          pointerEvents: isHovered ? "auto" : "none",
+        }}
+      />
+    <div style={nodeStyle}>
+      {isEditing ? (
         <input
           ref={inputRef}
           value={editValue}
@@ -255,12 +350,12 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
             cursor: "text",
             userSelect: "none",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: shape === "diamond" ? "row" : "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: "var(--spacing-xs)",
+            gap: shape === "diamond" ? "var(--spacing-xs)" : "var(--spacing-xs)",
             width: "100%",
-            flexWrap: "nowrap",
+            flexWrap: shape === "diamond" ? "wrap" : "nowrap",
           }}
           onDoubleClick={handleDoubleClick}
           title="Double-click to edit"
@@ -271,7 +366,7 @@ function EntityNodeComponent({ data }: NodeProps<EntityNodeData>) {
           <span style={{ fontSize: "1.5em", lineHeight: 1, flexShrink: 0 }}>{icon}</span>
           <span style={{ fontSize: "0.9em", textAlign: "center" }}>{label}</span>
         </div>
-        )}
+      )}
       </div>
     </div>
   );

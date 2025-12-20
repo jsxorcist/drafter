@@ -27,7 +27,7 @@ export function transformConnectionToEdge(connection: Connection): Edge {
     target: connection.targetId,
     sourceHandle,
     targetHandle,
-    type: "smoothstep", // Use smoothstep for smooth rounded corners
+    type: "draggable", // Use custom draggable edge type (without visible point)
     animated: false,
     style: {
       stroke: connection.style.color,
@@ -38,6 +38,9 @@ export function transformConnectionToEdge(connection: Connection): Edge {
       color: connection.style.color,
     },
     label: connection.label,
+    data: {
+      waypoint: connection.waypoint || null,
+    },
   };
 }
 

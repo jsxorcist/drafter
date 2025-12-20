@@ -36,6 +36,7 @@ export interface Connection {
   style: ConnectionStyle;
   sourceHandle?: string; // Store the handle from which connection was created
   targetHandle?: string; // Store the handle to which connection was attached
+  waypoint?: Position; // Optional waypoint for dragging edge from middle
 }
 
 export interface TextNoteStyle {

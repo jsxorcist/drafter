@@ -36,6 +36,11 @@ export function createEntity(
   position: Position,
   label: string = "Новая сущность"
 ): Entity {
+  // Decision entities are 1.5x larger to fit labels better
+  const isDecision = type === "decision";
+  const width = isDecision ? 225 : 150;
+  const height = isDecision ? 90 : 60;
+  
   return {
     id: generateId(),
     type,
@@ -44,8 +49,8 @@ export function createEntity(
     style: {
       color: DEFAULT_ENTITY_COLORS[type],
       shape: DEFAULT_ENTITY_SHAPES[type],
-      width: 150,
-      height: 60,
+      width,
+      height,
     },
   };
 }

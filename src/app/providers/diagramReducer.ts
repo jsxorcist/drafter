@@ -7,14 +7,16 @@ export type DiagramAction =
   | { type: "UPDATE_ENTITY_POSITION"; entityId: string; position: { x: number; y: number } }
   | { type: "UPDATE_ENTITY_LABEL"; entityId: string; label: string }
   | { type: "CREATE_CONNECTION"; connection: Connection }
-  | { type: "UPDATE_CONNECTION"; connectionId: string; sourceHandle?: string; targetHandle?: string }
+  | { type: "UPDATE_CONNECTION"; connectionId: string; sourceHandle?: string; targetHandle?: string; waypoint?: { x: number; y: number } | null }
   | { type: "DELETE_CONNECTION"; connectionId: string }
   | { type: "CREATE_TEXT_NOTE"; note: TextNote }
   | { type: "DELETE_TEXT_NOTE"; noteId: string }
   | { type: "UPDATE_TEXT_NOTE"; noteId: string; text: string }
   | { type: "UPDATE_TEXT_NOTE_POSITION"; noteId: string; position: { x: number; y: number } }
   | { type: "ADD_DRAWING_STROKE"; drawingId: string; stroke: Stroke }
+  | { type: "DELETE_DRAWING_STROKE"; drawingId: string; strokeIndex: number }
   | { type: "DELETE_DRAWING"; drawingId: string }
+  | { type: "INVERT_DRAWING_COLORS" }
   | { type: "LOAD_DIAGRAM"; diagram: Diagram }
   | { type: "RESET_DIAGRAM" }
   | { type: "UNDO" }
@@ -80,6 +82,7 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
                 ...c,
                 sourceHandle: action.sourceHandle !== undefined ? action.sourceHandle : c.sourceHandle,
                 targetHandle: action.targetHandle !== undefined ? action.targetHandle : c.targetHandle,
+                waypoint: action.waypoint !== undefined ? (action.waypoint || undefined) : c.waypoint,
               }
             : c
         ),
@@ -154,23 +157,83 @@ export function diagramReducer(state: Diagram, action: DiagramAction): Diagram {
 
       // Add stroke to existing drawing (only if stroke has points)
       if (action.stroke.points.length > 0) {
-        return {
-          ...state,
-          drawings: state.drawings.map((d) =>
+      return {
+        ...state,
+        drawings: state.drawings.map((d) =>
             d.id === action.drawingId ? { ...d, strokes: [...d.strokes, action.stroke] } : d
-          ),
-          metadata: { ...state.metadata, updatedAt: now },
-        };
+        ),
+        metadata: { ...state.metadata, updatedAt: now },
+      };
       }
 
       // If stroke is empty, don't update
       return state;
     }
 
+    case "DELETE_DRAWING_STROKE": {
+      const updatedDrawings = state.drawings
+        .map((d) =>
+          d.id === action.drawingId
+            ? {
+                ...d,
+                strokes: d.strokes.filter((_, index) => index !== action.strokeIndex),
+              }
+            : d
+        )
+        .filter((d) => d.strokes.length > 0); // Remove drawings with no strokes
+      
+      return {
+        ...state,
+        drawings: updatedDrawings,
+        metadata: { ...state.metadata, updatedAt: now },
+      };
+    }
+
     case "DELETE_DRAWING": {
       return {
         ...state,
         drawings: state.drawings.filter((d) => d.id !== action.drawingId),
+        metadata: { ...state.metadata, updatedAt: now },
+      };
+    }
+
+    case "INVERT_DRAWING_COLORS": {
+      // Invert colors of all strokes in all drawings
+      // #000000 -> #ffffff, #ffffff -> #000000
+      const invertColor = (color: string): string => {
+        if (color === "#000000" || color === "#000" || color.toLowerCase() === "black") {
+          return "#ffffff";
+        }
+        if (color === "#ffffff" || color === "#fff" || color.toLowerCase() === "white") {
+          return "#000000";
+        }
+        // For other colors, try to invert RGB
+        const hex = color.replace("#", "");
+        if (hex.length === 6) {
+          const r = parseInt(hex.substring(0, 2), 16);
+          const g = parseInt(hex.substring(2, 4), 16);
+          const b = parseInt(hex.substring(4, 6), 16);
+          const invertedR = (255 - r).toString(16).padStart(2, "0");
+          const invertedG = (255 - g).toString(16).padStart(2, "0");
+          const invertedB = (255 - b).toString(16).padStart(2, "0");
+          return `#${invertedR}${invertedG}${invertedB}`;
+        }
+        return color; // Return original if can't parse
+      };
+
+      return {
+        ...state,
+        drawings: state.drawings.map((drawing) => ({
+          ...drawing,
+          strokes: drawing.strokes.map((stroke) => ({
+            ...stroke,
+            color: invertColor(stroke.color),
+          })),
+          style: {
+            ...drawing.style,
+            color: invertColor(drawing.style.color),
+          },
+        })),
         metadata: { ...state.metadata, updatedAt: now },
       };
     }

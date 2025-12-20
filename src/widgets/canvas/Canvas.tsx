@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useEffect, useRef } from "react";
+import { useCallback, useMemo, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -18,6 +18,7 @@ import "reactflow/dist/style.css";
 import { useDiagram } from "@/app/providers/DiagramProvider";
 import { EntityNode } from "./EntityNode";
 import { TextNoteNode } from "./TextNoteNode";
+import { DraggableEdge } from "./DraggableEdge";
 import { transformEntitiesToNodes, transformTextNotesToNodes } from "./nodeTransform";
 import { transformConnectionsToEdges } from "./edgeTransform";
 import { Position, EntityType, Stroke } from "@/entities/diagram/types";
@@ -33,8 +34,10 @@ import { DrawingMode } from "@/features/drawing-mode/DrawingMode";
 interface CanvasProps {
   onEntityDrop?: (entityType: EntityType, position: Position) => void;
   isDrawingMode?: boolean;
+  isEraserMode?: boolean;
   drawingId?: string | null;
   onDrawingStart?: () => void;
+  strokeWidth?: number;
 }
 
 const nodeTypes: NodeTypes = {
@@ -42,17 +45,86 @@ const nodeTypes: NodeTypes = {
   textNote: TextNoteNode,
 };
 
+const edgeTypes = {
+  draggable: DraggableEdge,
+};
+
 export function Canvas({
   onEntityDrop,
   isDrawingMode = false,
+  isEraserMode = false,
   drawingId = null,
   onDrawingStart,
+  strokeWidth = 2,
 }: CanvasProps) {
   const { diagram, dispatch } = useDiagram();
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const currentDrawingIdRef = useRef<string | null>(drawingId || null);
-  // Store source handle when starting connection
+  // Store source handle and node ID when starting connection
   const connectionSourceHandleRef = useRef<string | null>(null);
+  const connectionSourceNodeIdRef = useRef<string | null>(null);
+  // Track edges being deleted to prevent restoration
+  const deletedEdgeIdsRef = useRef<Set<string>>(new Set());
+  
+  // Track theme to set drawing color appropriately
+  // Check both localStorage and data-theme attribute for initial theme
+  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    // First check localStorage (same key as ThemeToggle uses)
+    const savedTheme = localStorage.getItem("drafter-theme");
+    if (savedTheme) {
+      return savedTheme === "dark";
+    }
+    // Fallback to data-theme attribute
+    const theme = document.documentElement.getAttribute("data-theme");
+    return theme === "dark";
+  });
+  
+  // Track previous theme to detect changes
+  const prevThemeRef = useRef<boolean | null>(null);
+
+  // Listen for theme changes and check on mount
+  useEffect(() => {
+    // Check theme immediately on mount (in case theme was set before component mounted)
+    const checkTheme = () => {
+      // Check localStorage first (most reliable)
+      const savedTheme = localStorage.getItem("drafter-theme");
+      let newIsDark: boolean;
+      if (savedTheme) {
+        newIsDark = savedTheme === "dark";
+      } else {
+        // Fallback to data-theme attribute
+        const theme = document.documentElement.getAttribute("data-theme");
+        newIsDark = theme === "dark";
+      }
+      
+      // If theme changed, invert drawing colors
+      if (prevThemeRef.current !== null && prevThemeRef.current !== newIsDark) {
+        dispatch({ type: "INVERT_DRAWING_COLORS" });
+      }
+      
+      prevThemeRef.current = newIsDark;
+      setIsDarkTheme(newIsDark);
+    };
+    
+    // Check immediately
+    checkTheme();
+    
+    // Set up observer for future changes
+    const observer = new MutationObserver(checkTheme);
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    
+    // Also check after a short delay to catch any async theme initialization
+    const timeoutId = setTimeout(checkTheme, 100);
+    
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [dispatch]);
 
   // Handle entity label update
   const handleLabelUpdate = useCallback(
@@ -114,6 +186,11 @@ export function Canvas({
                 entityId: change.id,
                 position: node.position,
               });
+              
+              // Update waypoints for connections involving this entity
+              // Waypoints are stored in flow coordinates, so they don't need updating
+              // when nodes move - they stay in the same absolute position
+              // This is the correct behavior for waypoints
             }
           }
         }
@@ -127,11 +204,11 @@ export function Canvas({
 
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => {
-      const updatedEdges = applyEdgeChanges(changes, edges);
-      
-      // Handle edge changes (deletion)
+      // Handle edge changes (deletion) first
       changes.forEach((change) => {
-        if (change.type === "remove") {
+        if (change.type === "remove" && "id" in change) {
+          // Mark as deleted to prevent restoration
+          deletedEdgeIdsRef.current.add(change.id);
           dispatch({
             type: "DELETE_CONNECTION",
             connectionId: change.id,
@@ -139,25 +216,85 @@ export function Canvas({
         }
       });
 
-      previousEdgesRef.current = updatedEdges;
+      // Filter out changes for edges that don't exist in our state (prevent errors)
+      const validChanges = changes.filter((change) => {
+        if (change.type === "remove") {
+          return true; // Always allow removal
+        }
+        if ("id" in change) {
+          // Check if edge exists in our connections
+          const edgeExists = diagram.connections.some((conn) => conn.id === change.id);
+          return edgeExists;
+        }
+        return true;
+      });
+
+      // Apply only valid changes to prevent rendering issues
+      if (validChanges.length > 0) {
+        try {
+          const updatedEdges = applyEdgeChanges(validChanges, edges);
+          previousEdgesRef.current = updatedEdges;
+        } catch (error) {
+          // Silently ignore errors to prevent canvas from breaking
+          console.warn("Error applying edge changes:", error);
+        }
+      }
     },
-    [edges, dispatch]
+    [edges, dispatch, diagram.connections]
   );
 
   // Handle edge updates when user drags connection endpoints
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge, newConnection: Connection) => {
-      if (newConnection.source && newConnection.target && newConnection.source !== newConnection.target) {
-        // Update connection with new handles
+      // If connection is invalid (dragged to empty space), mark for deletion
+      if (!newConnection.source || !newConnection.target || newConnection.source === newConnection.target) {
+        // Mark edge as deleted to prevent restoration
+        deletedEdgeIdsRef.current.add(oldEdge.id);
+        // Delete from our state immediately
         dispatch({
-          type: "UPDATE_CONNECTION",
+          type: "DELETE_CONNECTION",
           connectionId: oldEdge.id,
-          sourceHandle: newConnection.sourceHandle || undefined,
-          targetHandle: newConnection.targetHandle || undefined,
         });
+        // Delete from React-Flow's internal state
+        if (reactFlowInstanceRef.current) {
+          reactFlowInstanceRef.current.deleteElements({ edges: [oldEdge] });
+        }
+        return;
+      }
+
+      // If connection has valid source and target, update it
+      if (newConnection.source && newConnection.target && newConnection.source !== newConnection.target) {
+        // Remove from deleted set if it was there
+        deletedEdgeIdsRef.current.delete(oldEdge.id);
+        
+        // Check if source or target changed (edge was moved to different entities)
+        if (newConnection.source !== oldEdge.source || newConnection.target !== oldEdge.target) {
+          // Edge was moved to different entities - delete old and create new
+          if (canCreateConnection(newConnection.source, newConnection.target, diagram)) {
+            dispatch({
+              type: "DELETE_CONNECTION",
+              connectionId: oldEdge.id,
+            });
+            const newConn = createConnection(newConnection.source, newConnection.target);
+            newConn.sourceHandle = (newConnection.sourceHandle || undefined) as string | undefined;
+            newConn.targetHandle = (newConnection.targetHandle || undefined) as string | undefined;
+            dispatch({
+              type: "CREATE_CONNECTION",
+              connection: newConn,
+            });
+          }
+        } else {
+          // Only handles changed on same entities, update them
+          dispatch({
+            type: "UPDATE_CONNECTION",
+            connectionId: oldEdge.id,
+            sourceHandle: (newConnection.sourceHandle || undefined) as string | undefined,
+            targetHandle: (newConnection.targetHandle || undefined) as string | undefined,
+          });
+        }
       }
     },
-    [dispatch]
+    [dispatch, diagram]
   );
 
   const onConnect = useCallback(
@@ -165,24 +302,65 @@ export function Canvas({
       if (connection.source && connection.target && connection.source !== connection.target) {
         // Validate connection before creating
         if (canCreateConnection(connection.source, connection.target, diagram)) {
-          const newConnection = createConnection(connection.source, connection.target);
+          // CRITICAL: Ensure correct direction - arrow should point from source to target
+          // If we stored the source node ID, use it to verify/correct the direction
+          let actualSource = connection.source;
+          let actualTarget = connection.target;
+          
+          // If we have stored source node ID, verify direction is correct
+          if (connectionSourceNodeIdRef.current) {
+            // If React-Flow swapped source and target, correct them
+            if (connection.source === connectionSourceNodeIdRef.current) {
+              // Direction is correct: source matches stored source node
+              actualSource = connection.source;
+              actualTarget = connection.target;
+            } else if (connection.target === connectionSourceNodeIdRef.current) {
+              // Direction is swapped: React-Flow swapped source and target
+              actualSource = connection.target;
+              actualTarget = connection.source;
+            }
+          }
+          
+          const newConnection = createConnection(actualSource, actualTarget);
           // Store both source and target handles from which connection was created
           // IMPORTANT: sourceHandle is where connection STARTS, targetHandle is where it ENDS
-          newConnection.sourceHandle = connection.sourceHandle || connectionSourceHandleRef.current || "bottom";
-          newConnection.targetHandle = connection.targetHandle || "top";
-          // Ensure handles are strings, not null
-          if (newConnection.sourceHandle === null || newConnection.sourceHandle === undefined) {
-            newConnection.sourceHandle = "bottom";
+          // Priority: use connection.sourceHandle first, then stored ref, then default
+          // Normalize handle IDs (remove -target and -source suffixes if present)
+          const normalizeHandleId = (handleId: string | null | undefined): string => {
+            if (!handleId) return "";
+            // Remove -target or -source suffix to get base handle name
+            let normalized = handleId.replace(/-target$/, "").replace(/-source$/, "");
+            return normalized;
+          };
+          
+          // Determine source and target handles based on actual direction
+          let sourceHandleRaw: string | null | undefined;
+          let targetHandleRaw: string | null | undefined;
+          
+          if (actualSource === connection.source && actualTarget === connection.target) {
+            // Direction was correct
+            sourceHandleRaw = connection.sourceHandle || connectionSourceHandleRef.current;
+            targetHandleRaw = connection.targetHandle;
+          } else {
+            // Direction was swapped, so swap handles too
+            sourceHandleRaw = connection.targetHandle || connectionSourceHandleRef.current;
+            targetHandleRaw = connection.sourceHandle;
           }
-          if (newConnection.targetHandle === null || newConnection.targetHandle === undefined) {
-            newConnection.targetHandle = "top";
-          }
+          
+          const sourceHandle = normalizeHandleId(sourceHandleRaw);
+          const targetHandle = normalizeHandleId(targetHandleRaw);
+          
+          // Ensure handles are strings, not null or undefined
+          newConnection.sourceHandle = sourceHandle || "bottom";
+          newConnection.targetHandle = targetHandle || "top";
+          
           dispatch({
             type: "CREATE_CONNECTION",
             connection: newConnection,
           });
-          // Reset source handle ref
+          // Reset source handle and node refs
           connectionSourceHandleRef.current = null;
+          connectionSourceNodeIdRef.current = null;
         }
       }
     },
@@ -190,16 +368,21 @@ export function Canvas({
   );
 
   const onConnectStart = useCallback(
-    (_event: React.MouseEvent | React.TouchEvent, { handleId }: { handleId?: string | null }) => {
-      // Store the source handle from which connection starts
-      connectionSourceHandleRef.current = handleId || null;
+    (_event: React.MouseEvent | React.TouchEvent, { handleId, nodeId }: { handleId?: string | null; nodeId?: string | null }) => {
+      // Store the source handle and node ID from which connection starts
+      // Normalize handle ID (remove -target suffix if present)
+      const normalizedHandleId = handleId ? handleId.replace(/-target$/, "") : null;
+      connectionSourceHandleRef.current = normalizedHandleId;
+      connectionSourceNodeIdRef.current = nodeId || null;
     },
     []
   );
 
   const onConnectEnd = useCallback(() => {
-    // Reset source handle ref if connection was not completed
+    // If connection was not completed (dropped in empty space), reset source handle and node refs
+    // React-Flow will call onConnectEnd even if connection was completed, so we just reset
     connectionSourceHandleRef.current = null;
+    connectionSourceNodeIdRef.current = null;
   }, []);
 
 
@@ -308,18 +491,23 @@ export function Canvas({
         }
       }
 
-      // Ctrl+Z: Undo
-      if (event.ctrlKey && event.key === "z" && !event.shiftKey) {
+      // Ctrl+Z: Undo (prevent default to avoid browser back navigation)
+      // Use event.code instead of event.key to work with any keyboard layout
+      if (event.ctrlKey && event.code === "KeyZ" && !event.shiftKey) {
         event.preventDefault();
+        event.stopPropagation();
         dispatch({ type: "UNDO" });
+        return;
       }
 
       // Ctrl+Y or Ctrl+Shift+Z: Redo
+      // Use event.code instead of event.key to work with any keyboard layout
       if (
-        (event.ctrlKey && event.key === "y") ||
-        (event.ctrlKey && event.shiftKey && event.key === "z")
+        (event.ctrlKey && event.code === "KeyY") ||
+        (event.ctrlKey && event.shiftKey && event.code === "KeyZ")
       ) {
         event.preventDefault();
+        event.stopPropagation();
         dispatch({ type: "REDO" });
       }
     };
@@ -332,6 +520,37 @@ export function Canvas({
 
   const onInit = useCallback((instance: ReactFlowInstance) => {
     reactFlowInstanceRef.current = instance;
+  }, []);
+
+  // Track viewport changes to trigger canvas redraw
+  const [viewportVersion, setViewportVersion] = useState(0);
+  
+  const onMove = useCallback(() => {
+    // Increment version to trigger redraw in DrawingCanvas
+    setViewportVersion((v) => v + 1);
+  }, []);
+
+  // Track viewport changes (zoom/pan) by periodically checking viewport
+  useEffect(() => {
+    if (!reactFlowInstanceRef.current) return;
+
+    let lastViewport = reactFlowInstanceRef.current.getViewport();
+    const intervalId = setInterval(() => {
+      if (reactFlowInstanceRef.current) {
+        const currentViewport = reactFlowInstanceRef.current.getViewport();
+        // Check if viewport changed (zoom or pan)
+        if (
+          currentViewport.x !== lastViewport.x ||
+          currentViewport.y !== lastViewport.y ||
+          currentViewport.zoom !== lastViewport.zoom
+        ) {
+          lastViewport = currentViewport;
+          setViewportVersion((v) => v + 1);
+        }
+      }
+    }, 16); // Check every ~60fps
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Handle drawing stroke completion
@@ -388,7 +607,11 @@ export function Canvas({
         onDrop={onDrop}
         onDragOver={onDragOver}
         onInit={onInit}
+        onMove={onMove}
+        onMoveStart={onMove}
+        onMoveEnd={onMove}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
         fitView
         style={{ backgroundColor: "var(--color-background)" }}
@@ -409,7 +632,7 @@ export function Canvas({
           strokeWidth: 2,
           stroke: "var(--color-secondary)",
         }}
-        // Enable edge selection and deletion
+        // Enable edge selection, deletion, and endpoint dragging
         edgesUpdatable={true}
         edgesFocusable={true}
         // Performance optimizations for 50+ entities
@@ -433,10 +656,23 @@ export function Canvas({
       </ReactFlow>
       <DrawingMode
         isActive={isDrawingMode}
+        isEraserMode={isEraserMode}
         drawingId={currentDrawingIdRef.current}
         strokes={allStrokes}
+        drawings={diagram.drawings}
         onStrokeComplete={handleStrokeComplete}
         onDrawingStart={onDrawingStart || (() => {})}
+        color={isDarkTheme ? "#ffffff" : "#000000"}
+        strokeWidth={strokeWidth}
+        reactFlowInstance={reactFlowInstanceRef.current}
+        viewportVersion={viewportVersion}
+        onEraseStroke={(drawingId, strokeIndex) => {
+          dispatch({
+            type: "DELETE_DRAWING_STROKE",
+            drawingId,
+            strokeIndex,
+          });
+        }}
       />
     </div>
   );
