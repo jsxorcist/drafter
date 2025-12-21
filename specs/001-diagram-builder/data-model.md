@@ -1,4 +1,4 @@
-# Data Model: Визуальный конструктор схем
+ # Data Model: Визуальный конструктор схем
 
 **Created**: 2025-01-27  
 **Feature**: [spec.md](./spec.md)
